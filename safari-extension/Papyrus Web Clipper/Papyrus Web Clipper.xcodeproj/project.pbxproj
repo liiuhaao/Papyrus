@@ -1,0 +1,680 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C5A900E72F7655F0004B52FC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A900E62F7655F0004B52FC /* AppDelegate.swift */; };
+		C5A900EB2F7655F0004B52FC /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = C5A900E92F7655F0004B52FC /* Main.html */; };
+		C5A900ED2F7655F0004B52FC /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = C5A900EC2F7655F0004B52FC /* Icon.png */; };
+		C5A900EF2F7655F0004B52FC /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = C5A900EE2F7655F0004B52FC /* Style.css */; };
+		C5A900F12F7655F0004B52FC /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = C5A900F02F7655F0004B52FC /* Script.js */; };
+		C5A900F32F7655F0004B52FC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A900F22F7655F0004B52FC /* ViewController.swift */; };
+		C5A900F62F7655F0004B52FC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C5A900F42F7655F0004B52FC /* Main.storyboard */; };
+		C5A900F82F7655F1004B52FC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5A900F72F7655F1004B52FC /* Assets.xcassets */; };
+		C5A900FF2F7655F1004B52FC /* Papyrus Web Clipper Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C5A900FE2F7655F1004B52FC /* Papyrus Web Clipper Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C5A901042F7655F1004B52FC /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A901032F7655F1004B52FC /* SafariWebExtensionHandler.swift */; };
+		C5A901142F7655F2004B52FC /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C5A901102F7655F2004B52FC /* README.md */; };
+		C5A901152F7655F2004B52FC /* icons in Resources */ = {isa = PBXBuildFile; fileRef = C5A901112F7655F2004B52FC /* icons */; };
+		C5A901162F7655F2004B52FC /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = C5A901122F7655F2004B52FC /* manifest.json */; };
+		C5A901172F7655F2004B52FC /* src in Resources */ = {isa = PBXBuildFile; fileRef = C5A901132F7655F2004B52FC /* src */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C5A901002F7655F1004B52FC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C5A900DB2F7655F0004B52FC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C5A900FD2F7655F1004B52FC;
+			remoteInfo = "Papyrus Web Clipper Extension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C5A9010B2F7655F1004B52FC /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C5A900FF2F7655F1004B52FC /* Papyrus Web Clipper Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		C5A900E32F7655F0004B52FC /* Papyrus Web Clipper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Papyrus Web Clipper.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C5A900E62F7655F0004B52FC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		C5A900EA2F7655F0004B52FC /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		C5A900EC2F7655F0004B52FC /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		C5A900EE2F7655F0004B52FC /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		C5A900F02F7655F0004B52FC /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		C5A900F22F7655F0004B52FC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		C5A900F52F7655F0004B52FC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		C5A900F72F7655F1004B52FC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C5A900F92F7655F1004B52FC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C5A900FE2F7655F1004B52FC /* Papyrus Web Clipper Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Papyrus Web Clipper Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C5A901032F7655F1004B52FC /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		C5A901052F7655F1004B52FC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C5A901102F7655F2004B52FC /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = "../../../browser-extension/README.md"; sourceTree = "<group>"; };
+		C5A901112F7655F2004B52FC /* icons */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icons; path = "../../../browser-extension/icons"; sourceTree = "<group>"; };
+		C5A901122F7655F2004B52FC /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = "../../../browser-extension/manifest.json"; sourceTree = "<group>"; };
+		C5A901132F7655F2004B52FC /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = src; path = "../../../browser-extension/src"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C5A900E02F7655F0004B52FC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C5A900FB2F7655F1004B52FC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C5A900DA2F7655F0004B52FC = {
+			isa = PBXGroup;
+			children = (
+				C5A900E52F7655F0004B52FC /* Papyrus Web Clipper */,
+				C5A901022F7655F1004B52FC /* Papyrus Web Clipper Extension */,
+				C5A900E42F7655F0004B52FC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C5A900E42F7655F0004B52FC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C5A900E32F7655F0004B52FC /* Papyrus Web Clipper.app */,
+				C5A900FE2F7655F1004B52FC /* Papyrus Web Clipper Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C5A900E52F7655F0004B52FC /* Papyrus Web Clipper */ = {
+			isa = PBXGroup;
+			children = (
+				C5A900E62F7655F0004B52FC /* AppDelegate.swift */,
+				C5A900F22F7655F0004B52FC /* ViewController.swift */,
+				C5A900F42F7655F0004B52FC /* Main.storyboard */,
+				C5A900F72F7655F1004B52FC /* Assets.xcassets */,
+				C5A900F92F7655F1004B52FC /* Info.plist */,
+				C5A900E82F7655F0004B52FC /* Resources */,
+			);
+			path = "Papyrus Web Clipper";
+			sourceTree = "<group>";
+		};
+		C5A900E82F7655F0004B52FC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C5A900E92F7655F0004B52FC /* Main.html */,
+				C5A900EC2F7655F0004B52FC /* Icon.png */,
+				C5A900EE2F7655F0004B52FC /* Style.css */,
+				C5A900F02F7655F0004B52FC /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		C5A901022F7655F1004B52FC /* Papyrus Web Clipper Extension */ = {
+			isa = PBXGroup;
+			children = (
+				C5A9010F2F7655F2004B52FC /* Resources */,
+				C5A901032F7655F1004B52FC /* SafariWebExtensionHandler.swift */,
+				C5A901052F7655F1004B52FC /* Info.plist */,
+			);
+			path = "Papyrus Web Clipper Extension";
+			sourceTree = "<group>";
+		};
+		C5A9010F2F7655F2004B52FC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C5A901102F7655F2004B52FC /* README.md */,
+				C5A901112F7655F2004B52FC /* icons */,
+				C5A901122F7655F2004B52FC /* manifest.json */,
+				C5A901132F7655F2004B52FC /* src */,
+			);
+			name = Resources;
+			path = "Papyrus Web Clipper Extension";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C5A900E22F7655F0004B52FC /* Papyrus Web Clipper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C5A9010C2F7655F1004B52FC /* Build configuration list for PBXNativeTarget "Papyrus Web Clipper" */;
+			buildPhases = (
+				C5A900DF2F7655F0004B52FC /* Sources */,
+				C5A900E02F7655F0004B52FC /* Frameworks */,
+				C5A900E12F7655F0004B52FC /* Resources */,
+				C5A901182F7655F2004B52FC /* Rebuild Host App Icon */,
+				C5A9010B2F7655F1004B52FC /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C5A901012F7655F1004B52FC /* PBXTargetDependency */,
+			);
+			name = "Papyrus Web Clipper";
+			packageProductDependencies = (
+			);
+			productName = "Papyrus Web Clipper";
+			productReference = C5A900E32F7655F0004B52FC /* Papyrus Web Clipper.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C5A900FD2F7655F1004B52FC /* Papyrus Web Clipper Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C5A901082F7655F1004B52FC /* Build configuration list for PBXNativeTarget "Papyrus Web Clipper Extension" */;
+			buildPhases = (
+				C5A900FA2F7655F1004B52FC /* Sources */,
+				C5A900FB2F7655F1004B52FC /* Frameworks */,
+				C5A901192F7655F2004B52FC /* Rebuild Extension Icons */,
+				C5A900FC2F7655F1004B52FC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Papyrus Web Clipper Extension";
+			packageProductDependencies = (
+			);
+			productName = "Papyrus Web Clipper Extension";
+			productReference = C5A900FE2F7655F1004B52FC /* Papyrus Web Clipper Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C5A900DB2F7655F0004B52FC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2640;
+				LastUpgradeCheck = 2640;
+				TargetAttributes = {
+					C5A900E22F7655F0004B52FC = {
+						CreatedOnToolsVersion = 26.4;
+					};
+					C5A900FD2F7655F1004B52FC = {
+						CreatedOnToolsVersion = 26.4;
+					};
+				};
+			};
+			buildConfigurationList = C5A900DE2F7655F0004B52FC /* Build configuration list for PBXProject "Papyrus Web Clipper" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C5A900DA2F7655F0004B52FC;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = C5A900E42F7655F0004B52FC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C5A900E22F7655F0004B52FC /* Papyrus Web Clipper */,
+				C5A900FD2F7655F1004B52FC /* Papyrus Web Clipper Extension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C5A900E12F7655F0004B52FC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C5A900ED2F7655F0004B52FC /* Icon.png in Resources */,
+				C5A900F62F7655F0004B52FC /* Main.storyboard in Resources */,
+				C5A900F12F7655F0004B52FC /* Script.js in Resources */,
+				C5A900EB2F7655F0004B52FC /* Main.html in Resources */,
+				C5A900EF2F7655F0004B52FC /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C5A900FC2F7655F1004B52FC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C5A901142F7655F2004B52FC /* README.md in Resources */,
+				C5A901162F7655F2004B52FC /* manifest.json in Resources */,
+				C5A901152F7655F2004B52FC /* icons in Resources */,
+				C5A901172F7655F2004B52FC /* src in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		C5A901192F7655F2004B52FC /* Rebuild Extension Icons */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(PAPYRUS_ICON_SOURCE_PATH)",
+				"$(PROJECT_DIR)/../../tools/build_icons.sh",
+			);
+			name = "Rebuild Extension Icons";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(PROJECT_DIR)/../../assets/icons/Papyrus-extension-source.png",
+				"$(PROJECT_DIR)/../../browser-extension/icons/icon-16.png",
+				"$(PROJECT_DIR)/../../browser-extension/icons/icon-32.png",
+				"$(PROJECT_DIR)/../../browser-extension/icons/icon-48.png",
+				"$(PROJECT_DIR)/../../browser-extension/icons/icon-128.png",
+				"$(PROJECT_DIR)/../../browser-extension/icons/icon-512.png",
+				"$(PROJECT_DIR)/../../browser-extension/icons/icon-1024.png",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/zsh;
+			shellScript = "\"$PROJECT_DIR/../../tools/build_icons.sh\" extension \"$PAPYRUS_ICON_SOURCE_PATH\"\n";
+		};
+		C5A901182F7655F2004B52FC /* Rebuild Host App Icon */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(PAPYRUS_ICON_SOURCE_PATH)",
+				"$(PROJECT_DIR)/../../tools/build_icons.sh",
+			);
+			name = "Rebuild Host App Icon";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(WRAPPER_NAME)/Contents/Resources/Assets.car",
+				"$(TARGET_BUILD_DIR)/$(WRAPPER_NAME)/Contents/Resources/Papyrus.icns",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/zsh;
+			shellScript = "\"$PROJECT_DIR/../../tools/build_icons.sh\" safari-host \"$TARGET_BUILD_DIR/$WRAPPER_NAME\" \"$PAPYRUS_ICON_SOURCE_PATH\" Papyrus\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C5A900DF2F7655F0004B52FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C5A900F32F7655F0004B52FC /* ViewController.swift in Sources */,
+				C5A900E72F7655F0004B52FC /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C5A900FA2F7655F1004B52FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C5A901042F7655F1004B52FC /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C5A901012F7655F1004B52FC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C5A900FD2F7655F1004B52FC /* Papyrus Web Clipper Extension */;
+			targetProxy = C5A901002F7655F1004B52FC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		C5A900E92F7655F0004B52FC /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C5A900EA2F7655F0004B52FC /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		C5A900F42F7655F0004B52FC /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C5A900F52F7655F0004B52FC /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C5A901062F7655F1004B52FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C5A901072F7655F1004B52FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		C5A901092F7655F1004B52FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = "$(PAPYRUS_DEVELOPMENT_TEAM)";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Papyrus Web Clipper Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Papyrus Web Clipper Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.4;
+				MARKETING_VERSION = 1.0.1;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PAPYRUS_ICON_SOURCE_PATH = "$(PROJECT_DIR)/../../assets/icons/Papyrus-macos26-source.png";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.papyrus.app.web-clipper.Extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C5A9010A2F7655F1004B52FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = "$(PAPYRUS_DEVELOPMENT_TEAM)";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Papyrus Web Clipper Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Papyrus Web Clipper Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.4;
+				MARKETING_VERSION = 1.0.1;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PAPYRUS_ICON_SOURCE_PATH = "$(PROJECT_DIR)/../../assets/icons/Papyrus-macos26-source.png";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.papyrus.app.web-clipper.Extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		C5A9010D2F7655F1004B52FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = "$(PAPYRUS_DEVELOPMENT_TEAM)";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Papyrus Web Clipper/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Papyrus Web Clipper";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PAPYRUS_ICON_SOURCE_PATH = "$(PROJECT_DIR)/../../assets/icons/Papyrus-macos26-source.png";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.papyrus.app.web-clipper";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C5A9010E2F7655F1004B52FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = "$(PAPYRUS_DEVELOPMENT_TEAM)";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Papyrus Web Clipper/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Papyrus Web Clipper";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PAPYRUS_ICON_SOURCE_PATH = "$(PROJECT_DIR)/../../assets/icons/Papyrus-macos26-source.png";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.papyrus.app.web-clipper";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C5A900DE2F7655F0004B52FC /* Build configuration list for PBXProject "Papyrus Web Clipper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C5A901062F7655F1004B52FC /* Debug */,
+				C5A901072F7655F1004B52FC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C5A901082F7655F1004B52FC /* Build configuration list for PBXNativeTarget "Papyrus Web Clipper Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C5A901092F7655F1004B52FC /* Debug */,
+				C5A9010A2F7655F1004B52FC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C5A9010C2F7655F1004B52FC /* Build configuration list for PBXNativeTarget "Papyrus Web Clipper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C5A9010D2F7655F1004B52FC /* Debug */,
+				C5A9010E2F7655F1004B52FC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C5A900DB2F7655F0004B52FC /* Project object */;
+}
