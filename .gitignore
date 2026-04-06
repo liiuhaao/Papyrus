@@ -21,7 +21,8 @@ Claude.md
 docs/
 browser-extension/README.md
 assets/SCR-*.png
-assets/papyrus-showcase.png
 assets/icons/Papyrus-macos26-rendered-*.png
 assets/icons/Papyrus-macos26-rounded*.png
 assets/icons/Papyrus-macos26-file-rendered-512.png
+!assets/papyrus-showcase.png
+!assets/icons/Papyrus-macos26-rendered-256.png
