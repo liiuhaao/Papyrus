@@ -410,7 +410,7 @@ enum PaperQueryService {
         return label.isEmpty ? parts.full.trimmingCharacters(in: .whitespacesAndNewlines) : label
     }
 
-    private static func venueFilterKeys(for paper: Paper) -> Set<String> {
+    package static func venueFilterKeys(for paper: Paper) -> Set<String> {
         let rawVenue = (paper.venueObject?.name ?? paper.venue ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         guard !rawVenue.isEmpty else { return [] }
         let parts = VenueFormatter.resolvedVenueParts(rawVenue, abbreviation: paper.venueObject?.abbreviation)
@@ -430,7 +430,7 @@ enum PaperQueryService {
         })
     }
 
-    private static func normalizeVenueFilterValue(_ raw: String?) -> String {
+    package static func normalizeVenueFilterValue(_ raw: String?) -> String {
         raw?
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .lowercased() ?? ""
@@ -499,5 +499,152 @@ enum PaperQueryService {
             return $0.key.localizedCaseInsensitiveCompare($1.key) == .orderedAscending
         }
         .map { (keyword: $0.key, count: $0.value) }
+    }
+
+    // MARK: - Database-aggregated counts (avoid iterating full Paper array)
+
+    static func fetchYearCounts(context: NSManagedObjectContext) -> [(year: Int, count: Int)] {
+        let request = NSFetchRequest<NSDictionary>(entityName: "Paper")
+        let countExpr = NSExpressionDescription()
+        countExpr.name = "count"
+        countExpr.expression = NSExpression(forFunction: "count:", arguments: [NSExpression(forKeyPath: "year")])
+        countExpr.expressionResultType = .integer32AttributeType
+        request.propertiesToFetch = ["year", countExpr]
+        request.propertiesToGroupBy = ["year"]
+        request.resultType = .dictionaryResultType
+        request.predicate = NSPredicate(format: "year > 0")
+        guard let results = try? context.fetch(request) else { return [] }
+        return results.compactMap { dict in
+            guard let year = (dict["year"] as? NSNumber)?.intValue,
+                  let count = (dict["count"] as? NSNumber)?.intValue else { return nil }
+            return (year, count)
+        }.sorted { $0.year > $1.year }
+    }
+
+    static func fetchPublicationTypeCounts(context: NSManagedObjectContext) -> [(type: String, count: Int)] {
+        let request = NSFetchRequest<NSDictionary>(entityName: "Paper")
+        let countExpr = NSExpressionDescription()
+        countExpr.name = "count"
+        countExpr.expression = NSExpression(forFunction: "count:", arguments: [NSExpression(forKeyPath: "publicationType")])
+        countExpr.expressionResultType = .integer32AttributeType
+        request.propertiesToFetch = ["publicationType", countExpr]
+        request.propertiesToGroupBy = ["publicationType"]
+        request.resultType = .dictionaryResultType
+        request.predicate = NSPredicate(format: "publicationType != nil AND publicationType != ''")
+        guard let results = try? context.fetch(request) else { return [] }
+        let order = ["conference", "journal", "workshop", "preprint", "book", "other"]
+        return results.compactMap { dict in
+            guard let type = dict["publicationType"] as? String,
+                  let count = (dict["count"] as? NSNumber)?.intValue else { return nil }
+            return (type, count)
+        }.sorted {
+            let leftIndex = order.firstIndex(of: $0.type) ?? order.count
+            let rightIndex = order.firstIndex(of: $1.type) ?? order.count
+            return leftIndex < rightIndex
+        }
+    }
+
+    static func fetchFlaggedCount(context: NSManagedObjectContext) -> Int {
+        let request = NSFetchRequest<NSNumber>(entityName: "Paper")
+        request.resultType = .countResultType
+        request.predicate = NSPredicate(format: "isFlagged == YES")
+        return (try? context.fetch(request).first?.intValue) ?? 0
+    }
+
+    static func fetchTagCounts(context: NSManagedObjectContext) -> [(tag: String, count: Int)] {
+        let request = NSFetchRequest<NSDictionary>(entityName: "Paper")
+        request.propertiesToFetch = ["tags"]
+        request.resultType = .dictionaryResultType
+        guard let results = try? context.fetch(request) else { return [] }
+        var counts: [String: Int] = [:]
+        for dict in results {
+            guard let tagsStr = dict["tags"] as? String else { continue }
+            for tag in tagsStr.components(separatedBy: ",") {
+                let trimmed = tag.trimmingCharacters(in: .whitespaces)
+                if !trimmed.isEmpty {
+                    counts[trimmed, default: 0] += 1
+                }
+            }
+        }
+        return counts.sorted {
+            if $0.value != $1.value { return $0.value > $1.value }
+            return $0.key.localizedCaseInsensitiveCompare($1.key) == .orderedAscending
+        }.map { (tag: $0.key, count: $0.value) }
+    }
+
+    static func fetchVenueCounts(context: NSManagedObjectContext) -> [(venue: String, count: Int)] {
+        let request = NSFetchRequest<NSDictionary>(entityName: "Paper")
+        request.propertiesToFetch = ["venue", "venueObject"]
+        request.resultType = .dictionaryResultType
+        guard let results = try? context.fetch(request) else { return [] }
+
+        var counts: [String: (count: Int, rankSource: String?, rankValue: String?)] = [:]
+
+        for dict in results {
+            guard let paperDict = dict as? [String: Any] else { continue }
+            let venueStr = paperDict["venue"] as? String
+            let venueObj = paperDict["venueObject"] as? Venue
+
+            let rawVenue = (venueObj?.name ?? venueStr ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !rawVenue.isEmpty else { continue }
+            let parts = VenueFormatter.resolvedVenueParts(rawVenue, abbreviation: venueObj?.abbreviation)
+            let label = parts.abbr.trimmingCharacters(in: .whitespacesAndNewlines)
+            let displayLabel = label.isEmpty ? parts.full.trimmingCharacters(in: .whitespacesAndNewlines) : label
+
+            var rankSource: String?
+            var rankValue: String?
+            if let vo = venueObj, let top = RankProfiles.sortEntries(Array(vo.rankSources)).first {
+                rankSource = top.0
+                rankValue = top.1
+            }
+
+            let existing = counts[displayLabel]
+            counts[displayLabel] = (
+                (existing?.count ?? 0) + 1,
+                existing?.rankSource ?? rankSource,
+                existing?.rankValue ?? rankValue
+            )
+        }
+
+        return counts.sorted {
+            let leftRank = RankProfiles.rankSortKey(source: $0.value.rankSource ?? "", raw: $0.value.rankValue ?? "")
+            let rightRank = RankProfiles.rankSortKey(source: $1.value.rankSource ?? "", raw: $1.value.rankValue ?? "")
+            if leftRank != rightRank { return leftRank < rightRank }
+            if $0.value.count != $1.value.count { return $0.value.count > $1.value.count }
+            return $0.key < $1.key
+        }.map { (venue: $0.key, count: $0.value.count) }
+    }
+
+    static func fetchRankKeywordCounts(context: NSManagedObjectContext, visibleSourceKeys: [String]) -> [(keyword: String, count: Int)] {
+        let request = NSFetchRequest<NSDictionary>(entityName: "Paper")
+        request.propertiesToFetch = ["venueObject"]
+        request.resultType = .dictionaryResultType
+        guard let results = try? context.fetch(request) else { return [] }
+
+        var counts: [String: Int] = [:]
+        var keywordMeta: [String: (source: String, value: String)] = [:]
+
+        for dict in results {
+            guard let venueObj = (dict as? [String: Any])?["venueObject"] as? Venue else { continue }
+            for (key, value) in venueObj.orderedRankEntries(visibleSourceKeys: visibleSourceKeys) {
+                let label = RankSourceConfig.displayLabel(for: key, value: value)
+                counts[label, default: 0] += 1
+                keywordMeta[label] = (key, value)
+            }
+        }
+
+        return counts.sorted {
+            let leftMeta = keywordMeta[$0.key] ?? ("", "")
+            let rightMeta = keywordMeta[$1.key] ?? ("", "")
+            let leftSourceOrder = RankProfiles.sourceSortKey(leftMeta.source)
+            let rightSourceOrder = RankProfiles.sourceSortKey(rightMeta.source)
+            if leftSourceOrder != rightSourceOrder { return leftSourceOrder < rightSourceOrder }
+
+            let leftRankOrder = RankProfiles.rankSortKey(source: leftMeta.source, raw: leftMeta.value)
+            let rightRankOrder = RankProfiles.rankSortKey(source: rightMeta.source, raw: rightMeta.value)
+            if leftRankOrder != rightRankOrder { return leftRankOrder < rightRankOrder }
+
+            return $0.key.localizedCaseInsensitiveCompare($1.key) == .orderedAscending
+        }.map { (keyword: $0.key, count: $0.value) }
     }
 }

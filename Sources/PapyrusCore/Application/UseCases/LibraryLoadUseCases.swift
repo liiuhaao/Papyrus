@@ -12,6 +12,12 @@ final class LoadLibraryPapersUseCase {
     func fetchAllPapers() throws -> [Paper] {
         let request: NSFetchRequest<Paper> = Paper.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(keyPath: \Paper.dateAdded, ascending: false)]
+        request.fetchBatchSize = 50
+        return try viewContext.fetch(request)
+    }
+
+    func fetchFilteredPapers(state: PaperFilterState) throws -> [Paper] {
+        let request = PaperQueryService.buildFilteredFetchRequest(state: state)
         return try viewContext.fetch(request)
     }
 

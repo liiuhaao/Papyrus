@@ -174,6 +174,11 @@ class PaperListViewModel: ObservableObject {
 
         guard insertedOrDeletedPapers || venueStructureChanged || paperOrVenueUpdated else { return }
 
+        // Invalidate cached papers array so it reloads fresh on next use
+        if insertedOrDeletedPapers || venueStructureChanged || containsManagedObjects(of: Paper.self, in: updated) {
+            papers = []
+        }
+
         if insertedOrDeletedPapers || venueStructureChanged {
             fetchPapers()
             return
@@ -208,43 +213,51 @@ class PaperListViewModel: ObservableObject {
     }
     
     func refetchFiltered() {
-        let orderedIDs = libraryQueries.filterPaperIDs(
-            allPapers: papers,
-            query: listQuery,
-            visibleRankSourceKeys: AppConfig.shared.rankBadgeSources
-        )
-        let papersByID = Dictionary(uniqueKeysWithValues: papers.map { ($0.id, $0) })
-        filteredPapers = orderedIDs.compactMap { papersByID[$0] }
+        do {
+            filteredPapers = try libraryQueries.fetchFilteredPapers(
+                query: listQuery,
+                visibleRankSourceKeys: AppConfig.shared.rankBadgeSources
+            )
+        } catch {
+            taskState.errorMessage = "Failed to filter papers: " + error.localizedDescription
+        }
     }
 
     func fetchPapers() {
-        do {
-            papers = try libraryQueries.fetchAllPapers()
-            refreshFacetCaches()
-        } catch {
-            taskState.errorMessage = "Failed to fetch papers: " + error.localizedDescription
-        }
+        refreshFacetCaches()
         refetchFiltered()
     }
 
     private func refreshFacetCaches() {
-        refreshVenueCounts()
-        yearCounts = PaperQueryService.yearCounts(in: papers)
-        publicationTypeCounts = PaperQueryService.publicationTypeCounts(in: papers)
-        tagCounts = PaperQueryService.tagCounts(in: papers)
-        refreshRankKeywordCounts()
-        flaggedCount = papers.filter(\.isFlagged).count
+        venueCounts = PaperQueryService.fetchVenueCounts(context: viewContext)
+        yearCounts = PaperQueryService.fetchYearCounts(context: viewContext)
+        publicationTypeCounts = PaperQueryService.fetchPublicationTypeCounts(context: viewContext)
+        tagCounts = PaperQueryService.fetchTagCounts(context: viewContext)
+        rankKeywordCounts = PaperQueryService.fetchRankKeywordCounts(
+            context: viewContext,
+            visibleSourceKeys: AppConfig.shared.rankBadgeSources
+        )
+        flaggedCount = PaperQueryService.fetchFlaggedCount(context: viewContext)
     }
 
     private func refreshVenueCounts() {
-        venueCounts = PaperQueryService.venueCounts(in: papers)
+        venueCounts = PaperQueryService.fetchVenueCounts(context: viewContext)
     }
 
     private func refreshRankKeywordCounts() {
-        rankKeywordCounts = PaperQueryService.rankKeywordCounts(
-            in: papers,
+        rankKeywordCounts = PaperQueryService.fetchRankKeywordCounts(
+            context: viewContext,
             visibleSourceKeys: AppConfig.shared.rankBadgeSources
         )
+    }
+
+    private func ensurePapersLoaded() {
+        guard papers.isEmpty else { return }
+        do {
+            papers = try libraryQueries.fetchAllPapers()
+        } catch {
+            taskState.errorMessage = "Failed to load papers: " + error.localizedDescription
+        }
     }
 
     func resumePendingImportRecoveryIfNeeded() {
@@ -710,11 +723,13 @@ class PaperListViewModel: ObservableObject {
     // MARK: - Export
 
     func exportBibTeX(papers: [Paper]? = nil) -> String {
-        exportLibraryUseCase.exportBibTeX(papers ?? self.papers)
+        ensurePapersLoaded()
+        return exportLibraryUseCase.exportBibTeX(papers ?? self.papers)
     }
 
     func exportCSV(papers: [Paper]? = nil) -> String {
-        exportLibraryUseCase.exportCSV(papers ?? self.papers)
+        ensurePapersLoaded()
+        return exportLibraryUseCase.exportCSV(papers ?? self.papers)
     }
 
     // MARK: - Venue
@@ -759,6 +774,7 @@ class PaperListViewModel: ObservableObject {
     }
 
     func reorderPinned(from source: IndexSet, to destination: Int, visiblePinned: [Paper]) {
+        ensurePapersLoaded()
         do {
             try reorderPinnedPapersUseCase.execute(
                 from: source,

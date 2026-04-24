@@ -99,6 +99,57 @@ package struct LibraryQueries {
         ).map(\.id)
     }
 
+    package func fetchFilteredPapers(
+        query: LibraryListQuery,
+        visibleRankSourceKeys: [String]
+    ) throws -> [Paper] {
+        let state = PaperFilterState(
+            searchText: query.searchText,
+            sortField: query.sortField,
+            sortAscending: query.sortAscending,
+            filterRankKeywords: query.rankKeywords,
+            filterReadingStatus: query.readingStatuses,
+            filterMinRating: query.minRating,
+            filterVenueAbbr: query.venueAbbreviations,
+            filterYear: query.years,
+            filterPublicationType: query.publicationTypes,
+            filterTags: query.tags,
+            filterFlaggedOnly: query.flaggedOnly
+        )
+
+        // Database query for most filters (search, status, year, type, tags, flagged)
+        var papers = try loadLibraryPapersUseCase.fetchFilteredPapers(state: state)
+
+        // In-memory post-filter for venue (complex matching logic)
+        let selectedVenues = Set(state.filterVenueAbbr.map(PaperQueryService.normalizeVenueFilterValue))
+        if !selectedVenues.isEmpty {
+            papers = papers.filter { paper in
+                !selectedVenues.isDisjoint(with: PaperQueryService.venueFilterKeys(for: paper))
+            }
+        }
+
+        // In-memory post-filter for rank keywords
+        if !state.filterRankKeywords.isEmpty {
+            papers = papers.filter { paper in
+                guard let venue = paper.venueObject else { return false }
+                let labels = Set(venue.orderedRankEntries(visibleSourceKeys: visibleRankSourceKeys).map { key, value in
+                    RankSourceConfig.displayLabel(for: key, value: value)
+                })
+                return !labels.isDisjoint(with: state.filterRankKeywords)
+            }
+        }
+
+        if query.pinnedOnly {
+            papers = papers.filter(\.isPinned)
+        }
+
+        if let limit = query.limit, limit >= 0 {
+            papers = Array(papers.prefix(limit))
+        }
+
+        return papers
+    }
+
     private func filteredPapers(
         allPapers: [Paper],
         query: LibraryListQuery,

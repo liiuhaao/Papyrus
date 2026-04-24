@@ -748,6 +748,7 @@ private final class NativePaperGridItem: NSCollectionViewItem {
 
     private func render() {
         guard let configuration else { return }
+        resetHostingView()
         let root = AnyView(
             PaperGridCard(
                 paper: configuration.paper,
@@ -771,20 +772,16 @@ private final class NativePaperGridItem: NSCollectionViewItem {
             )
             .id(configuration.paper.objectID)
         )
-        if let hostingView {
-            hostingView.rootView = root
-        } else {
-            let hostingView = NSHostingView(rootView: root)
-            hostingView.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview(hostingView)
-            NSLayoutConstraint.activate([
-                hostingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                hostingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                hostingView.topAnchor.constraint(equalTo: view.topAnchor),
-                hostingView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-            ])
-            self.hostingView = hostingView
-        }
+        let hostingView = NSHostingView(rootView: root)
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(hostingView)
+        NSLayoutConstraint.activate([
+            hostingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hostingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            hostingView.topAnchor.constraint(equalTo: view.topAnchor),
+            hostingView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        self.hostingView = hostingView
     }
 
     override func prepareForReuse() {
@@ -796,7 +793,10 @@ private final class NativePaperGridItem: NSCollectionViewItem {
     }
 
     private func resetHostingView() {
-        hostingView?.removeFromSuperview()
+        if let hostingView = hostingView {
+            hostingView.rootView = AnyView(EmptyView())
+            hostingView.removeFromSuperview()
+        }
         hostingView = nil
     }
 }
@@ -1089,6 +1089,9 @@ private struct PaperThumbnailView: View {
             .task(id: thumbnailRequestKey(for: geo.size)) {
                 await loadThumbnail(for: geo.size)
             }
+            .onDisappear {
+                image = nil
+            }
         }
         .aspectRatio(3.0 / 4.0, contentMode: .fit)
     }
@@ -1098,7 +1101,7 @@ private struct PaperThumbnailView: View {
         guard size.width.isFinite, size.height.isFinite, size.width > 0, size.height > 0 else { return }
         guard let filePath, !filePath.isEmpty else { image = nil; return }
         let url = URL(fileURLWithPath: filePath)
-        let target = CGSize(width: size.width * 2, height: size.height * 2)
+        let target = CGSize(width: size.width, height: size.height)
         if let cached = PDFThumbnailCache.shared.cachedThumbnail(for: url, size: target) {
             image = cached
             return

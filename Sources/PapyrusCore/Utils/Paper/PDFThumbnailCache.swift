@@ -11,8 +11,8 @@ final class PDFThumbnailCache {
 
     private init() {
         // Keep thumbnail memory bounded. PDF page rasters are roughly 4 bytes per pixel.
-        cache.countLimit = 120
-        cache.totalCostLimit = 96 * 1024 * 1024
+        cache.countLimit = 50
+        cache.totalCostLimit = 64 * 1024 * 1024
     }
 
     func cachedThumbnail(for url: URL, size: CGSize) -> NSImage? {
