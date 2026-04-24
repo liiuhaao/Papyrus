@@ -2,7 +2,7 @@ import CoreData
 import SwiftUI
 
 struct PaperRowView: View {
-    @ObservedObject var paper: Paper
+    let paper: Paper
     let searchText: String
     @ObservedObject private var appConfig = AppConfig.shared
 

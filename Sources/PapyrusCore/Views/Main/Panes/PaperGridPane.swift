@@ -689,7 +689,7 @@ private final class NativePaperGridItem: NSCollectionViewItem {
         let selectionModel: GalleryInteractionModel
     }
 
-    private var hostingView: NSHostingView<AnyView>?
+    private var hostingView: NSHostingView<PaperGridCard>?
     private var configuration: Configuration?
     private var renderedPaperID: NSManagedObjectID?
 
@@ -749,30 +749,27 @@ private final class NativePaperGridItem: NSCollectionViewItem {
     private func render() {
         guard let configuration else { return }
         resetHostingView()
-        let root = AnyView(
-            PaperGridCard(
-                paper: configuration.paper,
-                workflowStatus: configuration.paper.workflowStatus,
-                isSelected: isSelected,
-                searchText: configuration.searchText,
-                showToast: configuration.showToast,
-                openOnlineURL: configuration.openOnlineURL,
-                openPDF: configuration.openPDF,
-                showInFinder: configuration.showInFinder,
-                refreshMetadata: configuration.refreshMetadata,
-                cycleReadingStatus: configuration.cycleReadingStatus,
-                setPinned: configuration.setPinned,
-                setFlag: configuration.setFlag,
-                setRating: configuration.setRating,
-                copyBibTeX: configuration.copyBibTeX,
-                editMetadata: configuration.editMetadata,
-                deletePapers: configuration.deletePapers,
-                visiblePapers: configuration.visiblePapers,
-                selectionModel: configuration.selectionModel
-            )
-            .id(configuration.paper.objectID)
+        let card = PaperGridCard(
+            paper: configuration.paper,
+            workflowStatus: configuration.paper.workflowStatus,
+            isSelected: isSelected,
+            searchText: configuration.searchText,
+            showToast: configuration.showToast,
+            openOnlineURL: configuration.openOnlineURL,
+            openPDF: configuration.openPDF,
+            showInFinder: configuration.showInFinder,
+            refreshMetadata: configuration.refreshMetadata,
+            cycleReadingStatus: configuration.cycleReadingStatus,
+            setPinned: configuration.setPinned,
+            setFlag: configuration.setFlag,
+            setRating: configuration.setRating,
+            copyBibTeX: configuration.copyBibTeX,
+            editMetadata: configuration.editMetadata,
+            deletePapers: configuration.deletePapers,
+            visiblePapers: configuration.visiblePapers,
+            selectionModel: configuration.selectionModel
         )
-        let hostingView = NSHostingView(rootView: root)
+        let hostingView = NSHostingView(rootView: card)
         hostingView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(hostingView)
         NSLayoutConstraint.activate([
@@ -794,7 +791,6 @@ private final class NativePaperGridItem: NSCollectionViewItem {
 
     private func resetHostingView() {
         if let hostingView = hostingView {
-            hostingView.rootView = AnyView(EmptyView())
             hostingView.removeFromSuperview()
         }
         hostingView = nil
@@ -802,7 +798,7 @@ private final class NativePaperGridItem: NSCollectionViewItem {
 }
 
 private struct PaperGridCard: View {
-    @ObservedObject var paper: Paper
+    let paper: Paper
     let workflowStatus: PaperWorkflowStatus?
     let isSelected: Bool
     let searchText: String

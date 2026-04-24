@@ -222,35 +222,37 @@ final class NativeListCellView: NSTableCellView {
             .contentShape(Rectangle())
         )
 
-        if let hostingView {
-            hostingView.rootView = wrappedView
-        } else {
-            let hosting = NativeListHostingView(rootView: wrappedView)
-            hosting.translatesAutoresizingMaskIntoConstraints = false
-            addSubview(hosting)
+        // Tear down old hosting view to prevent KVO dependency accumulation
+        hostingView?.removeFromSuperview()
+        hostingView = nil
+        dividerView?.removeFromSuperview()
+        dividerView = nil
 
-            let divider = NSView()
-            divider.translatesAutoresizingMaskIntoConstraints = false
-            divider.wantsLayer = true
-            divider.layer?.backgroundColor = NSColor.separatorColor
-                .withAlphaComponent(ListRowLayoutMetrics.dividerOpacity)
-                .cgColor
-            addSubview(divider)
+        let hosting = NativeListHostingView(rootView: wrappedView)
+        hosting.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(hosting)
 
-            NSLayoutConstraint.activate([
-                hosting.leadingAnchor.constraint(equalTo: leadingAnchor),
-                hosting.trailingAnchor.constraint(equalTo: trailingAnchor),
-                hosting.topAnchor.constraint(equalTo: topAnchor),
-                hosting.bottomAnchor.constraint(equalTo: bottomAnchor),
-                divider.leadingAnchor.constraint(equalTo: leadingAnchor, constant: ListRowLayoutMetrics.dividerInset),
-                divider.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -ListRowLayoutMetrics.dividerInset),
-                divider.bottomAnchor.constraint(equalTo: bottomAnchor),
-                divider.heightAnchor.constraint(equalToConstant: 0.5)
-            ])
+        let divider = NSView()
+        divider.translatesAutoresizingMaskIntoConstraints = false
+        divider.wantsLayer = true
+        divider.layer?.backgroundColor = NSColor.separatorColor
+            .withAlphaComponent(ListRowLayoutMetrics.dividerOpacity)
+            .cgColor
+        addSubview(divider)
 
-            self.hostingView = hosting
-            self.dividerView = divider
-        }
+        NSLayoutConstraint.activate([
+            hosting.leadingAnchor.constraint(equalTo: leadingAnchor),
+            hosting.trailingAnchor.constraint(equalTo: trailingAnchor),
+            hosting.topAnchor.constraint(equalTo: topAnchor),
+            hosting.bottomAnchor.constraint(equalTo: bottomAnchor),
+            divider.leadingAnchor.constraint(equalTo: leadingAnchor, constant: ListRowLayoutMetrics.dividerInset),
+            divider.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -ListRowLayoutMetrics.dividerInset),
+            divider.bottomAnchor.constraint(equalTo: bottomAnchor),
+            divider.heightAnchor.constraint(equalToConstant: 0.5)
+        ])
+
+        self.hostingView = hosting
+        self.dividerView = divider
 
         dividerView?.layer?.backgroundColor = NSColor.separatorColor
             .withAlphaComponent(ListRowLayoutMetrics.dividerOpacity)
