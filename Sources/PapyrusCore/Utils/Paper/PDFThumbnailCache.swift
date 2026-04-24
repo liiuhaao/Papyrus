@@ -6,13 +6,19 @@ final class PDFThumbnailCache {
     static let shared = PDFThumbnailCache()
 
     private let cache = NSCache<NSString, NSImage>()
+    private let pdfCache = NSCache<NSString, PDFDocument>()
     private let inFlightLock = NSLock()
     private var inFlightTasks: [String: Task<NSImage?, Never>] = [:]
+
+    // Limit concurrent PDF opens to avoid memory spikes when many cells are visible
+    private static let renderSemaphore = DispatchSemaphore(value: 4)
 
     private init() {
         // Keep thumbnail memory bounded. PDF page rasters are roughly 4 bytes per pixel.
         cache.countLimit = 50
         cache.totalCostLimit = 64 * 1024 * 1024
+        // Cache a small number of PDF documents to avoid repeated file opens
+        pdfCache.countLimit = 10
     }
 
     func cachedThumbnail(for url: URL, size: CGSize) -> NSImage? {
@@ -30,11 +36,24 @@ final class PDFThumbnailCache {
     }
 
     private func renderThumbnail(url: URL, size: CGSize) -> NSImage? {
-        guard let document = PDFDocument(url: url),
-              let page = document.page(at: 0) else {
+        Self.renderSemaphore.wait()
+        defer { Self.renderSemaphore.signal() }
+
+        let document = cachedPDFDocument(for: url)
+        guard let page = document?.page(at: 0) else {
             return nil
         }
         return page.thumbnail(of: size, for: .cropBox)
+    }
+
+    private func cachedPDFDocument(for url: URL) -> PDFDocument? {
+        let key = url.path as NSString
+        if let cached = pdfCache.object(forKey: key) {
+            return cached
+        }
+        guard let document = PDFDocument(url: url) else { return nil }
+        pdfCache.setObject(document, forKey: key)
+        return document
     }
 
     private func cacheKey(url: URL, size: CGSize) -> NSString {
