@@ -1,15 +1,44 @@
 import Foundation
+import CoreData
 
 package struct LibraryPaperSummary: Encodable {
+    package let objectID: NSManagedObjectID
     package let id: UUID
-    package let title: String
-    package let authors: String
+    package let displayTitle: String
+    package let formattedAuthors: String
     package let venue: String?
     package let year: Int
     package let tags: [String]
     package let flagged: Bool
     package let pinned: Bool
+    package let rating: Int
     package let readingStatus: String
+    package let filePath: String?
+    package let workflowStatus: PaperWorkflowStatus?
+    package let notes: String?
+
+    package func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(displayTitle, forKey: .displayTitle)
+        try container.encode(formattedAuthors, forKey: .formattedAuthors)
+        try container.encode(venue, forKey: .venue)
+        try container.encode(year, forKey: .year)
+        try container.encode(tags, forKey: .tags)
+        try container.encode(flagged, forKey: .flagged)
+        try container.encode(pinned, forKey: .pinned)
+        try container.encode(rating, forKey: .rating)
+        try container.encode(readingStatus, forKey: .readingStatus)
+        try container.encode(filePath, forKey: .filePath)
+        try container.encode(workflowStatus, forKey: .workflowStatus)
+        try container.encode(notes, forKey: .notes)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, displayTitle, formattedAuthors, venue, year, tags
+        case flagged, pinned, rating, readingStatus, filePath
+        case workflowStatus, notes
+    }
 }
 
 package struct LibraryRuntimeSnapshot: Encodable {
@@ -103,6 +132,20 @@ package struct LibraryQueries {
         query: LibraryListQuery,
         visibleRankSourceKeys: [String]
     ) throws -> [Paper] {
+        try _fetchFiltered(query: query, visibleRankSourceKeys: visibleRankSourceKeys)
+    }
+
+    package func fetchFilteredPaperSummaries(
+        query: LibraryListQuery,
+        visibleRankSourceKeys: [String]
+    ) throws -> [LibraryPaperSummary] {
+        try _fetchFiltered(query: query, visibleRankSourceKeys: visibleRankSourceKeys).map(Self.makeSummary)
+    }
+
+    private func _fetchFiltered(
+        query: LibraryListQuery,
+        visibleRankSourceKeys: [String]
+    ) throws -> [Paper] {
         let state = PaperFilterState(
             searchText: query.searchText,
             sortField: query.sortField,
@@ -188,15 +231,20 @@ package struct LibraryQueries {
 
     private static func makeSummary(_ paper: Paper) -> LibraryPaperSummary {
         LibraryPaperSummary(
+            objectID: paper.objectID,
             id: paper.id,
-            title: paper.displayTitle,
-            authors: paper.formattedAuthors,
+            displayTitle: paper.displayTitle,
+            formattedAuthors: paper.formattedAuthors,
             venue: paper.venue,
             year: Int(paper.year),
             tags: paper.tagsList,
             flagged: paper.isFlagged,
             pinned: paper.isPinned,
-            readingStatus: paper.currentReadingStatus.rawValue
+            rating: Int(paper.rating),
+            readingStatus: paper.currentReadingStatus.rawValue,
+            filePath: paper.filePath,
+            workflowStatus: paper.workflowStatus,
+            notes: paper.notes
         )
     }
 }

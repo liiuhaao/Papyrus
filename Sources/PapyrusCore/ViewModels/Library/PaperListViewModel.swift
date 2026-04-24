@@ -39,6 +39,8 @@ class PaperListViewModel: ObservableObject {
         }
     }
     @Published private(set) var filteredPapersRevision: Int = 0
+    @Published private(set) var totalPaperCount: Int = 0
+    @Published private(set) var filteredPaperSummaries: [LibraryPaperSummary] = []
     private var cancellables = Set<AnyCancellable>()
     private var notificationObservers: [NSObjectProtocol] = []
 
@@ -186,6 +188,7 @@ class PaperListViewModel: ObservableObject {
 
         refreshFacetCaches()
         refetchFiltered()
+        refreshTotalCount()
     }
 
     private func managedObjects(for key: String, in notification: Notification) -> Set<NSManagedObject> {
@@ -226,6 +229,13 @@ class PaperListViewModel: ObservableObject {
     func fetchPapers() {
         refreshFacetCaches()
         refetchFiltered()
+        refreshTotalCount()
+    }
+
+    private func refreshTotalCount() {
+        let request = NSFetchRequest<NSNumber>(entityName: "Paper")
+        request.resultType = .countResultType
+        totalPaperCount = (try? viewContext.fetch(request).first?.intValue) ?? 0
     }
 
     private func refreshFacetCaches() {
@@ -544,6 +554,15 @@ class PaperListViewModel: ObservableObject {
             fetchPapers()
         } catch {
             taskState.errorMessage = "Failed to delete all: " + error.localizedDescription
+        }
+    }
+
+    /// Refault papers not currently visible to release their string property memory.
+    func refaultInvisiblePapers(visibleObjectIDs: Set<NSManagedObjectID>) {
+        for paper in filteredPapers {
+            if !visibleObjectIDs.contains(paper.objectID) && !paper.isFault {
+                viewContext.refresh(paper, mergeChanges: false)
+            }
         }
     }
     

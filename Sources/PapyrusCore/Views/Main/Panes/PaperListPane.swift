@@ -21,7 +21,7 @@ struct PaperListPane: View {
             if viewModel.filters.hasActiveFilters || !viewModel.filters.searchText.isEmpty {
                 PaperListSummaryBar(
                     resultCount: viewModel.filteredPapers.count,
-                    totalCount: viewModel.papers.count,
+                    totalCount: viewModel.totalPaperCount,
                     searchText: viewModel.filters.searchText,
                     activeFilters: activeFilterSummary,
                     onClearSearch: { viewModel.filters.searchText = "" },
@@ -50,7 +50,7 @@ struct PaperListPane: View {
                     resolvePaper: resolvePaper(for:)
                 )
                 .overlay {
-                    if viewModel.papers.isEmpty {
+                    if viewModel.totalPaperCount == 0 {
                         listEmptyState(
                             icon: "tray",
                             title: "Library is empty",
@@ -225,6 +225,7 @@ private struct NativePaperListView: NSViewRepresentable {
 
         scrollView.documentView = tableView
         context.coordinator.tableView = tableView
+        context.coordinator.startRefaultTimer()
 
         DispatchQueue.main.async {
             tableViewRef = tableView
@@ -260,9 +261,35 @@ private struct NativePaperListView: NSViewRepresentable {
         var contextMenuPaperIDs: [NSManagedObjectID] = []
         var contextMenuPrimaryPaperID: NSManagedObjectID?
         private var hasScheduledTableUpdate = false
+        private var refaultTimer: Timer?
 
         init(parent: NativePaperListView) {
             self.parent = parent
+        }
+
+        deinit {
+            refaultTimer?.invalidate()
+        }
+
+        func startRefaultTimer() {
+            guard refaultTimer == nil else { return }
+            refaultTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    self?.refaultInvisiblePapers()
+                }
+            }
+        }
+
+        private func refaultInvisiblePapers() {
+            let visibleRange = tableView?.rows(in: tableView?.visibleRect ?? .zero)
+            let visibleRows: IndexSet = visibleRange.map { range in
+                IndexSet(integersIn: Int(range.location)..<Int(range.location + range.length))
+            } ?? IndexSet()
+            let visibleIDs = Set(visibleRows.compactMap { row -> NSManagedObjectID? in
+                guard row < parent.rows.count else { return nil }
+                return parent.rows[row].objectID
+            })
+            parent.viewModel.refaultInvisiblePapers(visibleObjectIDs: visibleIDs)
         }
 
         func scheduleTableUpdate() {

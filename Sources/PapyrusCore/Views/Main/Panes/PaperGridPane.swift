@@ -30,7 +30,7 @@ struct PaperGridPane: View {
             if viewModel.filters.hasActiveFilters || !viewModel.filters.searchText.isEmpty {
                 PaperListSummaryBar(
                     resultCount: viewModel.filteredPapers.count,
-                    totalCount: viewModel.papers.count,
+                    totalCount: viewModel.totalPaperCount,
                     searchText: viewModel.filters.searchText,
                     activeFilters: activeFilterSummary,
                     onClearSearch: { viewModel.filters.searchText = "" },
@@ -39,7 +39,7 @@ struct PaperGridPane: View {
             }
 
             ZStack {
-                if viewModel.papers.isEmpty {
+                if viewModel.totalPaperCount == 0 {
                     dropImportEmptyState(
                         icon: "tray",
                         title: "Library is empty",
@@ -73,7 +73,8 @@ struct PaperGridPane: View {
                         setRating: setRating,
                         copyBibTeX: copyBibTeX,
                         editMetadata: editMetadata,
-                        deletePapers: deletePapers
+                        deletePapers: deletePapers,
+                        refaultInvisiblePapers: viewModel.refaultInvisiblePapers
                     )
                 }
             }
@@ -241,6 +242,7 @@ private struct NativePaperGridView: NSViewRepresentable {
     let copyBibTeX: ([Paper]) -> Void
     let editMetadata: (Paper) -> Void
     let deletePapers: ([Paper]) -> Void
+    let refaultInvisiblePapers: ((Set<NSManagedObjectID>) -> Void)?
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -283,6 +285,7 @@ private struct NativePaperGridView: NSViewRepresentable {
         context.coordinator.collectionView = collectionView
         context.coordinator.scrollView = scrollView
         context.coordinator.applyLayout(width: scrollView.contentSize.width)
+        context.coordinator.startRefaultTimer()
         return scrollView
     }
 
@@ -305,9 +308,30 @@ private struct NativePaperGridView: NSViewRepresentable {
         var lastRenderedSearchText: String = ""
         var draggingIndexPaths: Set<IndexPath> = []
         var externalDragMonitor: Timer?
+        private var refaultTimer: Timer?
 
         init(parent: NativePaperGridView) {
             self.parent = parent
+        }
+
+        func startRefaultTimer() {
+            guard refaultTimer == nil else { return }
+            refaultTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    self?.refaultInvisiblePapers()
+                }
+            }
+        }
+
+        private func refaultInvisiblePapers() {
+            guard let refault = parent.refaultInvisiblePapers else { return }
+            guard let collectionView else { return }
+            let visibleIndexPaths = collectionView.indexPathsForVisibleItems()
+            let visibleIDs = Set(visibleIndexPaths.compactMap { indexPath -> NSManagedObjectID? in
+                guard indexPath.item < parent.papers.count else { return nil }
+                return parent.papers[indexPath.item].objectID
+            })
+            refault(visibleIDs)
         }
 
         var selectionModel: GalleryInteractionModel { parent.selectionModel }
@@ -631,6 +655,7 @@ private struct NativePaperGridView: NSViewRepresentable {
         }
 
         deinit {
+            refaultTimer?.invalidate()
             externalDragMonitor?.invalidate()
         }
     }

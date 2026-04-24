@@ -1,6 +1,6 @@
 import Foundation
 
-enum PaperWorkflowPhase: String, CaseIterable {
+package enum PaperWorkflowPhase: String, CaseIterable, Encodable {
     case idle
     case queued
     case running
@@ -17,7 +17,7 @@ enum PaperWorkflowPhase: String, CaseIterable {
     }
 }
 
-struct PaperWorkflowStatus: Equatable {
+package struct PaperWorkflowStatus: Equatable, Encodable {
     var fetch: PaperWorkflowPhase
 
     init(fetch: PaperWorkflowPhase = .idle) {
