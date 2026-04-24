@@ -21,6 +21,8 @@ enum PaperQueryService {
         includeSearch: Bool = true
     ) -> NSFetchRequest<Paper> {
         let request: NSFetchRequest<Paper> = Paper.fetchRequest()
+        request.fetchBatchSize = 50
+        request.returnsObjectsAsFaults = true
         var predicates: [NSPredicate] = []
 
         if includeSearch && !state.searchText.isEmpty {
