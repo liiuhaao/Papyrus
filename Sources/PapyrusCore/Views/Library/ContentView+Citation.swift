@@ -56,6 +56,10 @@ extension ContentView {
         presentationState.showToast("Title copied")
     }
 
+    func copySelectedPDFs() {
+        PaperContextMenuSupport.copyPDFs(currentSelectedPapers, showToast: { presentationState.showToast($0) })
+    }
+
     func applyRating(_ rating: Int) {
         guard let paper = currentPrimaryPaper else { return }
         paper.rating = Int16(rating)

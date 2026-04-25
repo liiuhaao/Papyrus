@@ -10,7 +10,7 @@ package enum AppShortcutConfig {
         ShortcutCommandGroup(title: "Browse", actions: [.openPDF, .quickLook, .deletePaper, .focusSearch]),
         ShortcutCommandGroup(title: "Library", actions: [.importPDF, .refreshMetadata]),
         ShortcutCommandGroup(title: "Panels", actions: [.toggleLeftPanel, .toggleRightPanel]),
-        ShortcutCommandGroup(title: "Item", actions: [.pinPaper, .flagPaper, .copyTitle, .copyBibTeX]),
+        ShortcutCommandGroup(title: "Item", actions: [.pinPaper, .flagPaper, .copyTitle, .copyPDF, .copyBibTeX]),
     ]
 
     static let customizableActions: [InputAction] = keyboardGroups.flatMap(\.actions)
@@ -32,6 +32,7 @@ package enum AppShortcutConfig {
         .pinPaper: [],
         .flagPaper: [],
         .copyTitle: [],
+        .copyPDF: [],
         .copyBibTeX: [],
         .rate1: [],
         .rate2: [],
@@ -95,6 +96,7 @@ package enum AppShortcutConfig {
         case .pinPaper: return "Toggle pin."
         case .flagPaper: return "Toggle flag."
         case .copyTitle: return "Copy the title."
+        case .copyPDF: return "Copy the PDF file."
         case .copyBibTeX: return "Copy the BibTeX entry."
         case .rate1: return "Rate 1 star."
         case .rate2: return "Rate 2 stars."

@@ -17,6 +17,7 @@ package enum AppCommand: String, CaseIterable {
     case deletePaper = "delete_paper"
     case refreshMetadata = "refresh_metadata"
     case copyBibTeX = "copy_bibtex"
+    case copyPDF = "copy_pdf"
     case copyTitle = "copy_title"
     case focusSearch = "focus_search"
     case toggleLeftPanel = "toggle_left_panel"

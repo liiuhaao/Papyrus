@@ -54,7 +54,7 @@ extension AppCommand {
         switch self {
         case .openPDF, .quickLook, .rate1, .rate2, .rate3, .rate4, .rate5, .rateClear:
             return CommandDescriptor(target: .primaryItem, fallsBackToTextCopy: false)
-        case .copyTitle, .copyBibTeX:
+        case .copyTitle, .copyPDF, .copyBibTeX:
             return CommandDescriptor(target: .primaryItem, fallsBackToTextCopy: true)
         case .deletePaper, .refreshMetadata, .flagPaper, .pinPaper, .toggleRead:
             return CommandDescriptor(target: .selection, fallsBackToTextCopy: false)

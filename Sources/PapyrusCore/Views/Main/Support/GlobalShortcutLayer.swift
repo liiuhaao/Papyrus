@@ -12,6 +12,7 @@ struct GlobalShortcutConfiguration {
     let pinPaperShortcut: KeyboardShortcut?
     let flagPaperShortcut: KeyboardShortcut?
     let copyTitleShortcut: KeyboardShortcut?
+    let copyPDFShortcut: KeyboardShortcut?
     let copyBibTeXShortcut: KeyboardShortcut?
     let openPDF: () -> Void
     let quickLook: () -> Void
@@ -24,6 +25,7 @@ struct GlobalShortcutConfiguration {
     let pinPaper: () -> Void
     let flagPaper: () -> Void
     let copyTitle: () -> Void
+    let copyPDF: () -> Void
     let copyBibTeX: () -> Void
 }
 
@@ -43,6 +45,7 @@ struct GlobalShortcutLayer: View {
             Button("", action: configuration.pinPaper).keyboardShortcut(configuration.pinPaperShortcut)
             Button("", action: configuration.flagPaper).keyboardShortcut(configuration.flagPaperShortcut)
             Button("", action: configuration.copyTitle).keyboardShortcut(configuration.copyTitleShortcut)
+            Button("", action: configuration.copyPDF).keyboardShortcut(configuration.copyPDFShortcut)
             Button("", action: configuration.copyBibTeX).keyboardShortcut(configuration.copyBibTeXShortcut)
         }
         .labelsHidden()

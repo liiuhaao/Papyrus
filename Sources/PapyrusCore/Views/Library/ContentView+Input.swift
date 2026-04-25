@@ -247,6 +247,8 @@ extension ContentView {
             toggleFlagForCurrentSelection()
         case .copyTitle:
             copySelectedTitle()
+        case .copyPDF:
+            copySelectedPDFs()
         case .copyBibTeX:
             copySelectedBibTeX()
         case .rate1:
@@ -279,6 +281,7 @@ extension ContentView {
             pinPaperShortcut: appConfig.keyboardShortcut(for: .pinPaper),
             flagPaperShortcut: appConfig.keyboardShortcut(for: .flagPaper),
             copyTitleShortcut: appConfig.keyboardShortcut(for: .copyTitle),
+            copyPDFShortcut: appConfig.keyboardShortcut(for: .copyPDF),
             copyBibTeXShortcut: appConfig.keyboardShortcut(for: .copyBibTeX),
             openPDF: { _ = executeAppCommand(.openPDF, source: .globalShortcutLayer) },
             quickLook: { _ = executeAppCommand(.quickLook, source: .globalShortcutLayer) },
@@ -291,6 +294,7 @@ extension ContentView {
             pinPaper: { _ = executeAppCommand(.pinPaper, source: .globalShortcutLayer) },
             flagPaper: { _ = executeAppCommand(.flagPaper, source: .globalShortcutLayer) },
             copyTitle: { _ = executeAppCommand(.copyTitle, source: .globalShortcutLayer) },
+            copyPDF: { _ = executeAppCommand(.copyPDF, source: .globalShortcutLayer) },
             copyBibTeX: { _ = executeAppCommand(.copyBibTeX, source: .globalShortcutLayer) }
         )
     }
