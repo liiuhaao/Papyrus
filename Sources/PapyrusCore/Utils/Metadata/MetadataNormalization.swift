@@ -8,7 +8,7 @@ enum MetadataNormalization {
         normalized.venue = normalizeVenue(metadata.venue)
         normalized.doi = normalizedDOI(metadata.doi)
         normalized.abstract = normalizeAbstract(metadata.abstract)
-        if let arxivId = metadata.arxivId?.trimmingCharacters(in: .whitespacesAndNewlines), !arxivId.isEmpty {
+        if let arxivId = metadata.arxivId?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines), !arxivId.isEmpty {
             normalized.arxivId = arxivId
         } else {
             normalized.arxivId = nil
@@ -22,8 +22,8 @@ enum MetadataNormalization {
             .replacingOccurrences(of: #"<[^>]+>"#, with: " ", options: .regularExpression)
             .replacingOccurrences(of: #"[‐‑–—]"#, with: "-", options: .regularExpression)
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .trimmingCharacters(in: CharacterSet(charactersIn: ":,;.")) 
+            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet(charactersIn: ":,;."))
         let deDated = stripLeadingDatePrefix(cleaned)
         return deDated.isEmpty ? nil : deDated
     }
@@ -36,18 +36,18 @@ enum MetadataNormalization {
             .replacingOccurrences(of: #"\[[^\]]+\]"#, with: " ", options: .regularExpression)
             .replacingOccurrences(of: #"\([^\)]+\)"#, with: " ", options: .regularExpression)
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         if withoutBracketed.count > 10 {
             queries.append(withoutBracketed)
         }
 
         if let colonIndex = normalized.firstIndex(of: ":") {
-            let prefix = normalized[..<colonIndex].trimmingCharacters(in: .whitespacesAndNewlines)
+            let prefix = normalized[..<colonIndex].trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             if prefix.count >= 16 {
                 queries.append(prefix)
             }
             let suffixStart = normalized.index(after: colonIndex)
-            let suffix = normalized[suffixStart...].trimmingCharacters(in: .whitespacesAndNewlines)
+            let suffix = normalized[suffixStart...].trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             if suffix.count >= 24 {
                 queries.append(suffix)
             }
@@ -60,7 +60,7 @@ enum MetadataNormalization {
                 options: [.regularExpression, .caseInsensitive]
             )
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         if deNoised.count > 10 {
             queries.append(deNoised)
         }
@@ -117,11 +117,11 @@ enum MetadataNormalization {
         guard let authors else { return [] }
         let parts = authors.lowercased()
             .components(separatedBy: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .map { $0.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
 
         return Set(parts.compactMap { author in
-            let items = author.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
+            let items = author.components(separatedBy: CharacterSet.whitespacesAndNewlines).filter { !$0.isEmpty }
             return items.last
         })
     }
@@ -129,7 +129,7 @@ enum MetadataNormalization {
     static func normalizedDOI(_ raw: String?) -> String? {
         guard let raw else { return nil }
         let cleaned = raw
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             .replacingOccurrences(of: "https://doi.org/", with: "", options: .caseInsensitive)
             .replacingOccurrences(of: "http://doi.org/", with: "", options: .caseInsensitive)
             .replacingOccurrences(of: "doi:", with: "", options: .caseInsensitive)
@@ -139,7 +139,7 @@ enum MetadataNormalization {
     static func normalizedAuthorsString(_ raw: String?) -> String? {
         guard let raw else { return nil }
         let names = raw.components(separatedBy: ",").map {
-            $0.trimmingCharacters(in: .whitespacesAndNewlines)
+            $0.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         }
         let normalized = normalizedAuthors(names).joined(separator: ", ")
         return normalized.isEmpty ? nil : normalized
@@ -151,7 +151,7 @@ enum MetadataNormalization {
             .replacingOccurrences(of: #"\s+\d{4,}$"#, with: "", options: .regularExpression)
             .replacingOccurrences(of: #"\s+\d{1,3}$"#, with: "", options: .regularExpression)
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             .trimmingCharacters(in: CharacterSet(charactersIn: ",;"))
         return cleaned.isEmpty ? nil : cleaned
     }
@@ -168,7 +168,7 @@ enum MetadataNormalization {
         guard let raw else { return nil }
         let cleaned = raw
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             .trimmingCharacters(in: CharacterSet(charactersIn: ",;"))
         return cleaned.isEmpty ? nil : cleaned
     }
@@ -177,13 +177,13 @@ enum MetadataNormalization {
         guard let raw else { return nil }
         let cleaned = raw
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         return cleaned.isEmpty ? nil : cleaned
     }
 
     private static func significantTokens(_ text: String) -> Set<String> {
         Set(text.lowercased()
-            .components(separatedBy: .whitespacesAndNewlines)
+            .components(separatedBy: CharacterSet.whitespacesAndNewlines)
             .map { $0.trimmingCharacters(in: .punctuationCharacters) }
             .filter { $0.count > 2 })
     }
@@ -199,7 +199,7 @@ enum MetadataNormalization {
             "under", "through", "based", "new"
         ]
         return text.lowercased()
-            .components(separatedBy: .whitespacesAndNewlines)
+            .components(separatedBy: CharacterSet.whitespacesAndNewlines)
             .map { $0.trimmingCharacters(in: .punctuationCharacters) }
             .filter { $0.count >= 4 && !stopwords.contains($0) }
     }
@@ -246,6 +246,6 @@ enum MetadataNormalization {
                 options: [.regularExpression, .caseInsensitive]
             )
         }
-        return output.trimmingCharacters(in: .whitespacesAndNewlines)
+        return output.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     }
 }

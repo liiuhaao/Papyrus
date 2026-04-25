@@ -70,7 +70,7 @@ struct PaperDetailView: View {
                             paper.toggleFlag()
                             paper.dateModified = Date()
                             try? paper.managedObjectContext?.save()
-                            viewModel.fetchPapers()
+                            Task { await viewModel.fetchPapers() }
                         },
                         onPinToggle: {
                             viewModel.setPinned(!paper.isPinned, for: [paper])
@@ -224,7 +224,7 @@ struct PaperDetailView: View {
         mutation()
         paper.dateModified = Date()
         try? paper.managedObjectContext?.save()
-        viewModel.fetchPapers()
+        Task { await viewModel.fetchPapers() }
     }
 }
 

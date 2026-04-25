@@ -1,17 +1,17 @@
 import Foundation
 
-struct PDFSeed {
-    let title: String?
-    let titleCandidates: [String]
-    let authors: String?
-    let venue: String?
-    let year: Int16
-    let doi: String?
-    let arxivId: String?
-    let abstract: String?
+public struct PDFSeed {
+    public let title: String?
+    public let titleCandidates: [String]
+    public let authors: String?
+    public let venue: String?
+    public let year: Int16
+    public let doi: String?
+    public let arxivId: String?
+    public let abstract: String?
 }
 
-extension PDFSeed {
+public extension PDFSeed {
     var hasMeaningfulMetadata: Bool {
         title != nil
             || authors != nil
@@ -27,15 +27,14 @@ extension PDFSeed {
     }
 }
 
-enum PDFSeedExtractor {
-    static func extract(
+public enum PDFSeedExtractor {
+    public static func extract(
         from fileURL: URL,
         maxPages: Int = 2
-    ) async -> PDFSeed {
+    ) -> PDFSeed {
         let snapshot = PDFExtractor.extractContent(from: fileURL, maxPages: maxPages)
         let raw = extractRawFields(from: snapshot)
         let normalized = normalize(raw: raw)
-
         return PDFSeed(
             title: normalized.title,
             titleCandidates: [normalized.title].compactMap { $0 },
@@ -63,12 +62,20 @@ enum PDFSeedExtractor {
             return RawFields(title: nil, authors: [], venue: nil, year: nil, doi: nil, arxivId: nil, abstract: nil)
         }
 
-        let firstPageLines = splitLines(snapshot.firstPageText)
+        let allRichLines = snapshot.pages.flatMap(\.lines)
+        let allPageTexts = allRichLines.map(\.text)
         let allLines = splitLines(snapshot.rawText)
-        let title = extractTitle(from: firstPageLines)
-        let authors = extractAuthors(from: firstPageLines, title: title)
-        let venue = extractVenue(from: firstPageLines)
-        let year = extractYear(from: firstPageLines)
+        let blocks = extractTypographicBlocks(from: allRichLines)
+        let contentStartIndex = allRichLines.firstIndex {
+            isAbstractHeading($0.text)
+            || $0.text.lowercased() == "introduction"
+            || $0.text.lowercased().hasPrefix("1. introduction")
+            || $0.text.lowercased().hasPrefix("i. introduction")
+        } ?? allRichLines.count
+        let title = extractTitle(from: blocks, abstractLineIndex: contentStartIndex)
+        let authors = extractAuthors(from: blocks, title: title, abstractLineIndex: contentStartIndex)
+        let venue = extractVenue(from: allPageTexts)
+        let year = extractYear(from: allPageTexts)
         let doi = extractDOI(from: snapshot.rawText)
         let arxivId = extractArxivId(from: snapshot.rawText)
         let abstract = extractAbstract(from: allLines)
@@ -131,123 +138,514 @@ enum PDFSeedExtractor {
             .flatMap(splitMergedVenueAndTitleLine)
     }
 
-    private static func extractTitle(from lines: [String]) -> String? {
-        guard !lines.isEmpty else { return nil }
-        let limit = min(120, lines.count)
-        let prefix = Array(lines.prefix(limit))
-
-        var startIndex: Int?
-        for (index, line) in prefix.enumerated() {
-            guard isLikelyTitleLine(line) else { continue }
-            startIndex = index
-            break
-        }
-
-        guard let startIndex else { return nil }
-        var collected: [String] = []
-
-        for line in prefix[startIndex...] {
-            if isTitleBoundary(line) {
-                if collected.isEmpty,
-                   let inlineTitle = extractInlineTitlePrefix(from: line) {
-                    collected.append(inlineTitle)
-                }
-                break
-            }
-            if line.count < 4 { break }
-            collected.append(line)
-            if collected.count >= 3 { break }
-        }
-
-        let joined = collected.joined(separator: " ")
-        return MetadataNormalization.normalizeTitle(joined)
+    private struct TypographicBlock: Sendable, Equatable {
+        let fontSize: CGFloat
+        let lines: [String]
+        let startIndex: Int
+        let endIndex: Int
+        let isBold: Bool
+        let isItalic: Bool
+        var text: String { lines.joined(separator: " ") }
     }
 
-    private static func extractAuthors(from lines: [String], title: String?) -> [String] {
+    private static func extractTypographicBlocks(from lines: [PDFContentLine]) -> [TypographicBlock] {
         guard !lines.isEmpty else { return [] }
-        let titleLine = title?.lowercased()
-        let limit = min(24, lines.count)
-        let prefix = Array(lines.prefix(limit))
-
-        for (index, line) in prefix.enumerated() {
-            let lowered = line.lowercased()
-            if let titleLine, lowered == titleLine { continue }
-            if lowered.contains("abstract") || lowered.contains("introduction") { break }
-            if let commaBlockAuthors = extractCommaLeadingAuthorBlock(from: index, lines: prefix) {
-                return commaBlockAuthors
+        var blocks: [TypographicBlock] = []
+        var currentLines: [String] = [lines[0].text]
+        var currentFontSize = lines[0].fontSize
+        var currentIsBold = lines[0].isBold
+        var currentIsItalic = lines[0].isItalic
+        var startIndex = 0
+        for i in 1..<lines.count {
+            let line = lines[i]
+            let ratio = min(line.fontSize, currentFontSize) / max(line.fontSize, currentFontSize)
+            // Group lines into the same typographic block when their font sizes are
+            // visually indistinguishable: either within 5% ratio or < 0.5pt absolute delta.
+            if ratio >= 0.95 || abs(line.fontSize - currentFontSize) < 0.5 {
+                currentLines.append(line.text)
+                if line.isBold { currentIsBold = true }
+                if line.isItalic { currentIsItalic = true }
+            } else {
+                blocks.append(TypographicBlock(fontSize: currentFontSize, lines: currentLines, startIndex: startIndex, endIndex: i, isBold: currentIsBold, isItalic: currentIsItalic))
+                currentLines = [line.text]
+                currentFontSize = line.fontSize
+                currentIsBold = line.isBold
+                currentIsItalic = line.isItalic
+                startIndex = i
             }
-            if !looksLikeAuthorLine(line) {
-                var stylized: [String] = extractStylizedAuthorNames(from: line)
-                if !stylized.isEmpty {
-                    var cursor = index + 1
-                    while cursor < prefix.count {
-                        let continuation = prefix[cursor]
-                        let continuationLowered = continuation.lowercased()
-                        if continuationLowered.contains("abstract")
-                                || continuationLowered.contains("introduction")
-                                || looksLikeAffiliationLine(continuation) {
-                                break
+        }
+        blocks.append(TypographicBlock(fontSize: currentFontSize, lines: currentLines, startIndex: startIndex, endIndex: lines.count, isBold: currentIsBold, isItalic: currentIsItalic))
+        return blocks
+    }
+
+    private static func isVenueHeaderOrCopyrightBlock(_ block: TypographicBlock) -> Bool {
+        let text = block.text.lowercased()
+        if text.contains("content may change") || text.contains("all rights reserved") { return true }
+        if text.contains("publishers") || text.contains("manufactured") || text.contains("copyright") { return true }
+        if block.text.range(of: #",\s*\d{1,4}\s*[–-]\s*\d{1,4}\s*,\s*\d{4}"#, options: .regularExpression) != nil { return true }
+        if isLikelyVenueHeaderLine(block.text) { return true }
+        // arXiv-derived publication markers (e.g. "Published as a conference paper at ICLR 2025")
+        if text.contains("published as a conference paper") || text.contains("published as a workshop paper") { return true }
+
+        return false
+    }
+
+    private static func extractTitleLinesFromBlock(_ block: TypographicBlock) -> [String] {
+        var titleLines: [String] = []
+        for line in block.lines {
+            let lowered = line.lowercased()
+            // Only break on standalone Abstract/Introduction headings, not on titles
+            // that contain these words (e.g. "Abstract Interpretation for...")
+            if lowered == "abstract" || lowered == "introduction"
+                || lowered.hasPrefix("abstract ") || lowered.hasPrefix("introduction ")
+                || lowered.hasPrefix("abstract:") || lowered.hasPrefix("introduction:")
+                || lowered.hasPrefix("abstract-") || lowered.hasPrefix("introduction-") {
+                break
+            }
+            if line.contains("@") { break }
+            if looksLikeAffiliationLine(line) { break }
+            if looksLikeAuthorLine(line) { break }
+            // Within the same typographic block, allow up to 4 title lines before
+            // enabling body-text truncation. Long descriptive titles (5–9 words)
+            // often span 3+ lines and would otherwise be truncated by looksLikeBodyText.
+            if looksLikeBodyText(line) && titleLines.count >= 5 { break }
+            // Skip arXiv header lines that are mixed into the title block
+            if lowered.hasPrefix("arxiv:") && line.range(of: #"\d{4}\.\d{5}"#, options: .regularExpression) != nil {
+                continue
+            }
+            // Break on venue/journal header lines
+            if (lowered.contains("ieee transactions") || lowered.contains("acm transactions") || lowered.contains("transactions on")) && lowered.contains("vol.") {
+                break
+            }
+            titleLines.append(line)
+        }
+        return titleLines
+    }
+
+    // MARK: - Score-based Title Selection
+
+    private struct TitleCandidate {
+        let text: String
+        let block: TypographicBlock
+        let score: Double
+    }
+
+    private static func scoreTitleCandidate(
+        text: String,
+        block: TypographicBlock,
+        allBlocks: [TypographicBlock],
+        maxFontSize: CGFloat,
+        bodyBaseline: CGFloat
+    ) -> Double {
+        var score: Double = 0
+
+        // 1. Font size: larger is better, weighted heavily (0–25).
+        // Use body baseline as the reference instead of maxFontSize,
+        // because maxFontSize can be distorted by drop caps, logos, or outliers.
+        // Typical paper titles are 1.5–2.5× the body baseline.
+        let baselineRatio = bodyBaseline > 0 ? Double(block.fontSize / bodyBaseline) : 0
+        score += min(baselineRatio * 15, 30)
+
+        // Also retain a mild relative-to-max bonus for intra-page competition
+        let maxRatio = maxFontSize > 0 ? Double(block.fontSize / maxFontSize) : 0
+        score += maxRatio * 10
+
+        // 2. Length sweet spot: 30–120 chars is ideal
+        let length = text.count
+        switch length {
+        case 30...120:  score += 20
+        case 15..<30:   score += 10
+        case 120...200: score += 10
+        case ..<15:     score -= 20
+        default:        score -= 10
+        }
+
+        // 4. Position: earlier blocks are more likely to be the title
+        if let index = allBlocks.firstIndex(where: { $0.startIndex == block.startIndex }) {
+            if index <= 2 {
+                score += 15
+            } else if index <= 5 {
+                score += 5
+            } else {
+                score -= min(Double(index) * 2, 20)
+            }
+        }
+
+        // 3. Content penalties
+        let lowered = text.lowercased()
+        if lowered.contains("abstract") || lowered.contains("introduction") {
+            score -= 20
+        }
+        if isLikelyVenueHeaderLine(text) {
+            score -= 30
+        }
+
+        return score
+    }
+
+    private static func computeBodyBaseline(from blocks: [TypographicBlock]) -> CGFloat {
+        // Compute the mode (most common) font size among all blocks.
+        // Body text blocks outnumber title blocks, so the mode is a robust baseline.
+        var sizeCounts: [CGFloat: Int] = [:]
+        for block in blocks {
+            let rounded = round(block.fontSize * 10) / 10
+            sizeCounts[rounded, default: 0] += block.lines.count
+        }
+        if let mostCommon = sizeCounts.max(by: { $0.value < $1.value }) {
+            return mostCommon.key
+        }
+        return 10
+    }
+
+    private static func extractTitle(from blocks: [TypographicBlock], abstractLineIndex: Int = Int.max) -> String? {
+        let contentBlocks = blocks.filter { !isVenueHeaderOrCopyrightBlock($0) }
+        guard !contentBlocks.isEmpty else { return nil }
+        // Filter out oversized fonts (>28pt) which are usually section headings,
+        // figure captions, diagrams, or poster titles — not paper titles.
+        let reasonableBlocks = contentBlocks.filter { $0.fontSize <= 28 }
+        let candidatePool = reasonableBlocks.isEmpty ? contentBlocks : reasonableBlocks
+        let maxFontSize = candidatePool.map(\.fontSize).max() ?? 1
+
+        // Compute body baseline: the most common font size on the page.
+        // This is more stable than maxFontSize for title scoring.
+        let bodyBaseline = computeBodyBaseline(from: blocks)
+
+        var candidates: [TitleCandidate] = []
+
+        for candidate in candidatePool {
+            guard candidate.startIndex < abstractLineIndex else { continue }
+            let titleLines = extractTitleLinesFromBlock(candidate)
+            let joined = titleLines.joined(separator: " ")
+            guard let normalized = MetadataNormalization.normalizeTitle(joined) else { continue }
+            // Reject URL-only candidates (JSTOR terms pages, etc.)
+            if normalized.range(of: #"^https?://"#, options: .regularExpression) != nil { continue }
+
+            var bestText = normalized
+
+            // Try subtitle merge for short titles
+            if normalized.count < 30,
+               candidate.lines.count == 1,
+               let originalIndex = blocks.firstIndex(where: { $0.startIndex == candidate.startIndex }),
+               originalIndex + 1 < blocks.count {
+                let nextBlock = blocks[originalIndex + 1]
+                if !isVenueHeaderOrCopyrightBlock(nextBlock)
+                    && nextBlock.fontSize < candidate.fontSize
+                    && nextBlock.fontSize >= candidate.fontSize * 0.65
+                    && nextBlock.fontSize >= 12 {
+                    let nextTitleLines = extractTitleLinesFromBlock(nextBlock)
+                    let nextJoined = nextTitleLines.joined(separator: " ")
+                    if nextJoined.count > 30
+                        && !nextJoined.contains("@")
+                        && !looksLikeAffiliationLine(nextJoined)
+                        && !nextJoined.lowercased().contains("abstract")
+                        && !nextJoined.lowercased().contains("introduction") {
+                        let mergedLines = titleLines + nextTitleLines
+                        let mergedJoined = mergedLines.joined(separator: " ")
+                        if let mergedNormalized = MetadataNormalization.normalizeTitle(mergedJoined),
+                           mergedNormalized.count > normalized.count + 10 {
+                            bestText = mergedNormalized
                         }
-                        let stylizedExtra = extractStylizedAuthorNames(from: continuation)
-                        let extra = stylizedExtra.isEmpty ? extractDenseAuthorNames(from: continuation) : stylizedExtra
-                        if extra.isEmpty { break }
-                        stylized.append(contentsOf: extra)
-                        cursor += 1
                     }
                 }
-                let normalizedStylized = MetadataNormalization.normalizedAuthors(stylized)
-                if normalizedStylized.count >= 2 {
-                    return normalizedStylized
-                }
-                if isLikelyDenseAuthorLine(line) {
-                    var dense = extractDenseAuthorNames(from: line)
-                    if !dense.isEmpty {
-                        var cursor = index + 1
-                        while cursor < prefix.count {
-                            let continuation = prefix[cursor]
-                            let continuationLowered = continuation.lowercased()
-                            if continuationLowered.contains("abstract")
-                                || continuationLowered.contains("introduction")
-                                || looksLikeAffiliationLine(continuation) {
-                                break
-                            }
-                            let extra = extractDenseAuthorNames(from: continuation)
-                            if extra.isEmpty { break }
-                            dense.append(contentsOf: extra)
-                            cursor += 1
+            }
+
+            // Try hyphenated continuation
+            if bestText.hasSuffix("-"),
+               candidate.lines.count == 1,
+               let originalIndex = blocks.firstIndex(where: { $0.startIndex == candidate.startIndex }),
+               originalIndex + 1 < blocks.count {
+                let nextBlock = blocks[originalIndex + 1]
+                if !isVenueHeaderOrCopyrightBlock(nextBlock)
+                    && nextBlock.fontSize < candidate.fontSize
+                    && nextBlock.fontSize >= candidate.fontSize * 0.65
+                    && nextBlock.fontSize >= 12 {
+                    let nextText = nextBlock.text.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if nextText.count > 3 && nextText.count < 30,
+                       !nextText.contains("@"),
+                       !looksLikeAffiliationLine(nextText),
+                       !nextText.lowercased().contains("abstract"),
+                       !nextText.lowercased().contains("introduction") {
+                        let base = String(bestText.dropLast())
+                        let merged = base + nextText
+                        if let mergedNormalized = MetadataNormalization.normalizeTitle(merged),
+                           mergedNormalized.count > bestText.count + 3 {
+                            bestText = mergedNormalized
                         }
                     }
-                    let normalizedDense = MetadataNormalization.normalizedAuthors(dense)
-                    if normalizedDense.count >= 2 {
-                        return normalizedDense
-                    }
+                }
+            }
+
+            let score = scoreTitleCandidate(text: bestText, block: candidate, allBlocks: blocks, maxFontSize: maxFontSize, bodyBaseline: bodyBaseline)
+            candidates.append(TitleCandidate(text: bestText, block: candidate, score: score))
+        }
+
+        // Fallback: only scan short titles if no viable candidates were found
+        if candidates.isEmpty {
+            for candidate in candidatePool {
+                guard candidate.startIndex < abstractLineIndex else { continue }
+                let titleLines = extractTitleLinesFromBlock(candidate)
+                let joined = titleLines.joined(separator: " ")
+                if let normalized = MetadataNormalization.normalizeTitle(joined), normalized.count < 15 {
+                    let score = scoreTitleCandidate(text: normalized, block: candidate, allBlocks: blocks, maxFontSize: maxFontSize, bodyBaseline: bodyBaseline)
+                    candidates.append(TitleCandidate(text: normalized, block: candidate, score: score))
+                }
+            }
+        }
+
+        candidates.sort(by: { $0.score > $1.score })
+        return candidates.first?.text
+    }
+
+    private static func extractAuthorsFromBlock(_ block: TypographicBlock) -> [String] {
+        let text = block.text
+        if looksLikeAuthorLine(text) {
+            var names: [String] = []
+            for line in block.lines {
+                let lineNames = line
+                    .split(separator: ",")
+                    .map { cleanAuthorCandidate(String($0)) }
+                    .filter { !$0.isEmpty }
+                names.append(contentsOf: lineNames)
+            }
+            let personLike = names.filter { isLikelyPersonName($0) }
+            if personLike.count >= 2 {
+                return personLike
+            }
+        }
+        // Skip blocks that are clearly figure captions or diagram labels
+        let loweredText = text.lowercased()
+        if loweredText.contains("figure") || loweredText.contains("table") {
+            return []
+        }
+
+        let stylized = extractStylizedAuthorNames(from: text)
+        if stylized.count >= 2 {
+            return stylized
+        }
+        // Skip dense extraction on blocks that are clearly affiliation/institution text
+        let hasInstitutionKeyword = loweredText.contains("university") || loweredText.contains("department")
+            || loweredText.contains("institute") || loweredText.contains("laboratory")
+            || loweredText.contains("foundation") || loweredText.contains("college")
+            || loweredText.contains("school of")
+        let dense: [String]
+        if !hasInstitutionKeyword {
+            dense = extractDenseAuthorNames(from: text)
+            let normalizedDense = dense.compactMap { MetadataNormalization.normalizedAuthorName($0) }
+            if normalizedDense.count >= 2 {
+                return normalizedDense
+            }
+        } else {
+            dense = []
+        }
+
+        // Per-line single-author scanning for multi-line blocks (e.g. author + email/affiliation)
+        var lineAuthors: [String] = []
+        for line in block.lines {
+            if line.contains("@") { continue }
+            if looksLikeAffiliationLine(line) {
+                if !lineAuthors.isEmpty { break } else { continue }
+            }
+            if looksLikeBodyText(line) && lineAuthors.isEmpty { continue }
+            let lowered = line.lowercased()
+            if lowered.contains("abstract") || lowered.contains("introduction") { break }
+            // JSTOR-style "Author(s): Name1 and Name2"
+            if lowered.hasPrefix("author") && line.contains(":") {
+                let suffix = String(line.drop(while: { $0 != ":" }).dropFirst())
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                let names = suffix
+                    .split(separator: ",")
+                    .map { cleanAuthorCandidate(String($0)) }
+                    .filter { !$0.isEmpty }
+                let personLike = names.filter { isLikelyPersonName($0) }
+                if personLike.count >= 2 {
+                    return personLike
+                }
+                let dense = extractDenseAuthorNames(from: suffix)
+                let normalizedDense = dense.compactMap { MetadataNormalization.normalizedAuthorName($0) }
+                if normalizedDense.count >= 2 {
+                    return normalizedDense
                 }
                 continue
             }
-
-            var mergedAuthorLine = line
-            var cursor = index + 1
-            while cursor < prefix.count {
-                let continuation = prefix[cursor]
-                if isLikelyAuthorContinuationLine(continuation) {
-                    mergedAuthorLine += ", " + continuation
-                    cursor += 1
+            // Standard comma-separated author lines (per-line, so institution text in same block doesn't block)
+            if looksLikeAuthorLine(line) {
+                let names = line
+                    .split(separator: ",")
+                    .map { cleanAuthorCandidate(String($0)) }
+                    .filter { !$0.isEmpty }
+                let personLike = names.filter { isLikelyPersonName($0) }
+                if personLike.count >= 1 {
+                    lineAuthors.append(contentsOf: personLike)
+                }
+                continue
+            }
+            // Stylized space-separated author lines with markers (per-line to avoid institution-block guard)
+            let stylized = extractStylizedAuthorNames(from: line)
+            let stylizedThreshold = lineAuthors.isEmpty ? 2 : 1
+            if stylized.count >= stylizedThreshold {
+                lineAuthors.append(contentsOf: stylized)
+                continue
+            }
+            // Dense author name extraction
+            let lineDense = extractDenseAuthorNames(from: line)
+            let effectiveDense = lineDense
+            let denseThreshold = lineAuthors.isEmpty ? 2 : 1
+            if effectiveDense.count >= denseThreshold {
+                lineAuthors.append(contentsOf: effectiveDense.compactMap { MetadataNormalization.normalizedAuthorName($0) })
+                continue
+            }
+            if effectiveDense.count == 1 && line.count <= 35 {
+                if let normalized = MetadataNormalization.normalizedAuthorName(effectiveDense[0]) {
+                    lineAuthors.append(normalized)
+                    continue
+                }
+            }
+            // If we're already accumulating authors, skip comma-only continuation lines
+            // and break on any other non-author line.
+            if !lineAuthors.isEmpty {
+                let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+                if trimmed == "," || trimmed.hasPrefix(",") {
                     continue
                 }
                 break
             }
+        }
+        if lineAuthors.count >= 2 {
+            return lineAuthors
+        }
+        return []
+    }
 
-            let rawTokens = mergedAuthorLine
-                .replacingOccurrences(of: " and ", with: ",", options: .caseInsensitive)
-                .split(separator: ",")
-                .map { String($0) }
-            let stitchedTokens = stitchLikelySplitAuthorTokens(rawTokens)
-            let candidates = stitchedTokens
-                .compactMap { MetadataNormalization.normalizedAuthorName(cleanAuthorCandidate($0)) }
-                .filter { isLikelyPersonName($0) }
+    // MARK: - Score-based Author Selection
 
-            let normalized = MetadataNormalization.normalizedAuthors(candidates)
-            if normalized.count >= 2 { return normalized }
+    private struct AuthorCandidate {
+        let authors: [String]
+        let block: TypographicBlock
+        let score: Double
+    }
+
+    private static func scoreAuthorList(
+        _ authors: [String],
+        block: TypographicBlock,
+        blockIndex: Int,
+        titleBlockIndex: Int?
+    ) -> Double {
+        var score: Double = 0
+
+        // 1. Author count: sweet spot is 2–8
+        let count = authors.count
+        switch count {
+        case 3...8:   score += 20
+        case 2:       score += 15
+        case 9...15:  score += 10
+        case 16...30: score += 5
+        case 1:       score += 3
+        default:      score -= 10
+        }
+
+        // 2. Distance from title block: closer is better
+        if let tbi = titleBlockIndex {
+            let distance = blockIndex - tbi
+            switch distance {
+            case 1:  score += 15
+            case 2:  score += 10
+            case 3:  score += 5
+            case 4...5: score += 3
+            default: score -= min(Double(distance) * 2, 15)
+            }
+        }
+
+        // 3. Person-name ratio: higher is better
+        let personCount = authors.filter { isLikelyPersonName($0) }.count
+        let personRatio = authors.isEmpty ? 0 : Double(personCount) / Double(authors.count)
+        score += personRatio * 15
+
+        // 4. Institution penalty
+        let lowered = block.text.lowercased()
+        let institutionWords = ["university", "department", "institute", "laboratory",
+                                "foundation", "college", "school of"]
+        if institutionWords.contains(where: { lowered.contains($0) }) {
+            score -= 20
+        }
+
+        return score
+    }
+
+    private static func extractAuthors(from blocks: [TypographicBlock], title: String?, abstractLineIndex: Int = Int.max) -> [String] {
+        guard !blocks.isEmpty else { return [] }
+        let titleBlockIndex = blocks.firstIndex { block in
+            guard let t = title else { return false }
+            let blockText = block.text
+            if blockText.contains(t) { return true }
+            if t.contains(blockText) && blockText.count > 20 { return true }
+            return false
+        }
+
+        var candidates: [AuthorCandidate] = []
+        let scanStart = titleBlockIndex.map { $0 + 1 } ?? 0
+
+        for i in scanStart..<blocks.count {
+            let block = blocks[i]
+            if block.startIndex >= abstractLineIndex { break }
+            if block.fontSize < 6 { continue }
+            if let t = title, t.contains(block.text) { continue }
+            if isVenueHeaderOrCopyrightBlock(block) {
+                if block.lines.contains(where: { isAbstractHeading($0) || $0.lowercased() == "introduction" }) {
+                    break
+                }
+                continue
+            }
+
+            let blockAuthors = extractAuthorsFromBlock(block)
+            if !blockAuthors.isEmpty {
+                let score = scoreAuthorList(blockAuthors, block: block, blockIndex: i, titleBlockIndex: titleBlockIndex)
+                candidates.append(AuthorCandidate(authors: blockAuthors, block: block, score: score))
+            }
+
+            if block.lines.contains(where: { isAbstractHeading($0) || $0.lowercased() == "introduction" }) {
+                break
+            }
+            if block.lines.allSatisfy({ looksLikeAffiliationLine($0) || $0.contains("@") }) {
+                break
+            }
+        }
+
+        // Title block remaining lines
+        if let titleBlockIdx = titleBlockIndex {
+            let titleBlock = blocks[titleBlockIdx]
+            let titleLines = extractTitleLinesFromBlock(titleBlock)
+            if titleBlock.lines.first == titleLines.first {
+                let remainingLines = Array(titleBlock.lines.dropFirst(titleLines.count))
+                if !remainingLines.isEmpty {
+                    let remainingBlock = TypographicBlock(
+                        fontSize: titleBlock.fontSize,
+                        lines: remainingLines,
+                        startIndex: titleBlock.startIndex + titleLines.count,
+                        endIndex: titleBlock.endIndex,
+                        isBold: titleBlock.isBold,
+                        isItalic: titleBlock.isItalic
+                    )
+                    let remainingAuthors = extractAuthorsFromBlock(remainingBlock)
+                    if !remainingAuthors.isEmpty {
+                        let score = scoreAuthorList(remainingAuthors, block: remainingBlock, blockIndex: titleBlockIdx, titleBlockIndex: titleBlockIndex)
+                        candidates.append(AuthorCandidate(authors: remainingAuthors, block: remainingBlock, score: score))
+                    }
+                }
+            }
+        }
+
+        // Prefer multi-author candidates by score
+        let multiAuthorCandidates = candidates.filter { $0.authors.count >= 2 }
+        if !multiAuthorCandidates.isEmpty {
+            let best = multiAuthorCandidates.max(by: { $0.score < $1.score })!
+            return MetadataNormalization.normalizedAuthors(best.authors)
+        }
+
+        // Fallback: accumulate single-author candidates
+        let singleCandidates = candidates.filter { $0.authors.count == 1 }
+        if !singleCandidates.isEmpty {
+            let allSingles = singleCandidates.flatMap { $0.authors }
+            return MetadataNormalization.normalizedAuthors(allSingles)
         }
 
         return []
@@ -336,6 +734,7 @@ enum PDFSeedExtractor {
         }
 
         var cursor = abstractIndex + 1
+        // Cap abstract length at ~1600 chars to avoid pulling in the entire introduction.
         while cursor < lines.count && chunks.joined(separator: " ").count < 1600 {
             let line = lines[cursor]
             if isSectionHeading(line) { break }
@@ -347,59 +746,26 @@ enum PDFSeedExtractor {
         return MetadataNormalization.normalizeAbstract(text)
     }
 
-    private static func isLikelyTitleLine(_ line: String) -> Bool {
-        let lowered = line.lowercased()
-        if lowered.contains("@") || lowered.contains("http://") || lowered.contains("https://") {
-            return false
+    /// Detects prose-style body text (as opposed to title text).
+    /// Used to cut off title collection when the font size hasn't changed
+    /// but the content has clearly shifted into the abstract/introduction.
+    private static func looksLikeBodyText(_ line: String) -> Bool {
+        let words = line
+            .components(separatedBy: .whitespacesAndNewlines)
+            .map { $0.trimmingCharacters(in: .punctuationCharacters) }
+            .filter { !$0.isEmpty && $0.allSatisfy({ $0.isLetter }) }
+        let lowercaseWords = words.filter { word in
+            guard let first = word.first else { return false }
+            return first.isLowercase && word.count > 2
         }
-        if lowered.hasPrefix("published as ") {
-            return false
-        }
-        if lowered.hasPrefix("abstract") || lowered.hasPrefix("introduction") {
-            return false
-        }
-        if lowered.contains("arxiv:") || lowered.contains("doi:") {
-            return false
-        }
-        if isLikelyVenueHeaderLine(line) {
-            return false
-        }
-        if line.range(of: #"^\d{1,3}$"#, options: .regularExpression) != nil {
-            return false
-        }
-        if line.count < 10 || line.count > 180 {
-            return false
-        }
-        return true
-    }
-
-    private static func isTitleBoundary(_ line: String) -> Bool {
-        let lowered = line.lowercased()
-        if lowered.hasPrefix("abstract") || lowered.hasPrefix("introduction") {
-            return true
-        }
-        if lowered.contains("anonymous author") {
-            return true
-        }
-        if lowered.contains("@") {
-            return true
-        }
-        if isLikelyCommaLeadingAuthorLine(line) {
-            return true
-        }
-        if looksLikeAuthorLine(line) || looksLikeAffiliationLine(line) {
-            return true
-        }
-        if isLikelyDenseAuthorLine(line) {
-            return true
-        }
-        if isLikelyStylizedAuthorLine(line) {
-            return true
-        }
-        return false
+        return lowercaseWords.count >= 4
     }
 
     private static func looksLikeAuthorLine(_ line: String) -> Bool {
+        // Reject body text immediately — paragraphs with many lowercase words are never author lines.
+        if looksLikeBodyText(line) {
+            return false
+        }
         let lowered = line.lowercased()
         if lowered.contains("university") || lowered.contains("institute") || lowered.contains("department") {
             return false
@@ -417,29 +783,17 @@ enum PDFSeedExtractor {
         }
 
         let names = line
-            .replacingOccurrences(of: " and ", with: ",", options: .caseInsensitive)
+            
             .split(separator: ",")
             .map { cleanAuthorCandidate(String($0)) }
             .filter { !$0.isEmpty }
         if names.count < 2 { return false }
-        if looksLikeUppercaseTitleSegments(names) {
-            return false
-        }
-        let personLike = names.filter { isLikelyPersonName($0) }
-        return personLike.count >= 2
-    }
 
-    private static func looksLikeUppercaseTitleSegments(_ segments: [String]) -> Bool {
-        segments.contains { segment in
-            let words = segment
-                .components(separatedBy: .whitespacesAndNewlines)
-                .filter { !$0.isEmpty }
-            guard words.count >= 3 else { return false }
-            let hasLowercase = segment.range(of: #"[a-z]"#, options: .regularExpression) != nil
-            if hasLowercase { return false }
-            let uppercaseLetterCount = segment.unicodeScalars.filter { CharacterSet.uppercaseLetters.contains($0) }.count
-            return uppercaseLetterCount >= 6
+        let personLike = names.filter { name in
+            guard name.count <= 30 else { return false }
+            return isLikelyPersonName(name)
         }
+        return personLike.count >= 2
     }
 
     private static func looksLikeAffiliationLine(_ line: String) -> Bool {
@@ -449,47 +803,20 @@ enum PDFSeedExtractor {
             || lowered.contains("department")
             || lowered.contains("school of")
             || lowered.contains("laboratory")
-    }
-
-    private static func isLikelyDenseAuthorLine(_ line: String) -> Bool {
-        let lowered = line.lowercased()
-        if lowered.contains("abstract")
-            || lowered.contains("introduction")
-            || lowered.contains("published as")
-            || lowered.contains("arxiv:")
-            || lowered.contains("doi:")
-            || lowered.contains("http://")
-            || lowered.contains("https://")
-            || looksLikeAffiliationLine(line)
-            || isLikelyVenueHeaderLine(line) {
-            return false
-        }
-        if line.contains(":") {
-            return false
-        }
-        if lowered.range(
-            of: #"\b(of|and|for|to|in|on|with|without|from|by|a|an|the)\b"#,
-            options: .regularExpression
-        ) != nil {
-            return false
-        }
-        let hasMarkerOrDigit = line.range(of: #"[0-9*†‡]"#, options: .regularExpression) != nil
-        guard hasMarkerOrDigit else { return false }
-        if line.contains(",") {
-            return false
-        }
-        let names = extractDenseAuthorNames(from: line)
-        return names.count >= 2
+            || lowered.contains("research center")
+            || lowered.contains("college")
+            || lowered.contains("academy")
     }
 
     private static func extractDenseAuthorNames(from line: String) -> [String] {
-        let cleaned = line
-            .replacingOccurrences(of: #"[*†‡]"#, with: " ", options: .regularExpression)
+        let cleaned = stripAuthorMarkers(from: line, replacement: " ")
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleaned.isEmpty else { return [] }
+        // Note: no trailing \b because names may be glued to digits (e.g. "Wang1")
+        // and \b does not match between a letter and a digit in ICU.
         guard let regex = try? NSRegularExpression(
-            pattern: #"\b([A-Z][a-zA-Z'\-]+\s+[A-Z][a-zA-Z'\-]+)\b"#
+            pattern: #"\b([A-Z][a-zA-Z'\-]+(?:\s+[A-Z]\.){0,2}(?:\s+[A-Z][a-zA-Z'\-]+))"#
         ) else { return [] }
 
         let range = NSRange(cleaned.startIndex..<cleaned.endIndex, in: cleaned)
@@ -507,99 +834,33 @@ enum PDFSeedExtractor {
         return MetadataNormalization.normalizedAuthors(names)
     }
 
-    private static func extractCommaLeadingAuthorBlock(from startIndex: Int, lines: [String]) -> [String]? {
-        guard lines.indices.contains(startIndex) else { return nil }
-        guard isLikelyCommaLeadingAuthorLine(lines[startIndex]) else { return nil }
-        let startsWithComma = lines[startIndex].trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix(",")
-        let nextStartsWithComma: Bool = {
-            let next = startIndex + 1
-            guard lines.indices.contains(next) else { return false }
-            return lines[next].trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix(",")
-        }()
-        guard startsWithComma || nextStartsWithComma else { return nil }
-
-        var collected: [String] = []
-        var cursor = startIndex
-        while cursor < lines.count {
-            let line = lines[cursor]
-            let lowered = line.lowercased()
-            if lowered.contains("abstract")
-                || lowered.contains("introduction")
-                || looksLikeAffiliationLine(line) {
-                break
-            }
-
-            let names = extractCommaLeadingAuthorNames(from: line)
-            if names.isEmpty {
-                if !isLikelyCommaLeadingAuthorLine(line) { break }
-            } else {
-                collected.append(contentsOf: names)
-            }
-            cursor += 1
-        }
-
-        let normalized = MetadataNormalization.normalizedAuthors(collected)
-        return normalized.count >= 2 ? normalized : nil
-    }
-
-    private static func isLikelyCommaLeadingAuthorLine(_ line: String) -> Bool {
-        let lowered = line.lowercased()
-        if lowered.contains("abstract")
-            || lowered.contains("introduction")
-            || lowered.contains("published as")
-            || lowered.contains("arxiv:")
-            || lowered.contains("doi:")
-            || lowered.contains("http://")
-            || lowered.contains("https://")
-            || looksLikeAffiliationLine(line)
-            || isLikelyVenueHeaderLine(line) {
-            return false
-        }
-        let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed == "," || trimmed.hasPrefix(",") {
-            return true
-        }
-        guard line.range(of: #"[*†‡]"#, options: .regularExpression) != nil else { return false }
-        return !extractCommaLeadingAuthorNames(from: line).isEmpty
-    }
-
-    private static func extractCommaLeadingAuthorNames(from line: String) -> [String] {
-        let cleaned = line
-            .replacingOccurrences(of: #"^\s*,\s*"#, with: "", options: .regularExpression)
-            .replacingOccurrences(of: #"[*†‡]"#, with: " ", options: .regularExpression)
-            .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !cleaned.isEmpty else { return [] }
-        guard let regex = try? NSRegularExpression(
-            pattern: #"\b([A-Z][a-zA-Z'\-]+(?:\s+[A-Z]\.)?(?:\s+[A-Z][a-zA-Z'\-]+)+)\b"#
-        ) else { return [] }
-
-        let range = NSRange(cleaned.startIndex..<cleaned.endIndex, in: cleaned)
-        var names: [String] = []
-        for match in regex.matches(in: cleaned, range: range) {
-            guard match.numberOfRanges >= 2,
-                  let swiftRange = Range(match.range(at: 1), in: cleaned) else { continue }
-            let raw = String(cleaned[swiftRange])
-            if let normalized = MetadataNormalization.normalizedAuthorName(raw),
-               isLikelyPersonName(normalized) {
-                names.append(normalized)
-            }
-        }
-        return MetadataNormalization.normalizedAuthors(names)
-    }
-
     private static func containsLowercaseNameTokens(_ value: String) -> Bool {
         let parts = value.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
         guard parts.count >= 2 else { return false }
-        return parts.allSatisfy { part in
-            part.range(of: #"[a-z]"#, options: .regularExpression) != nil
+        // Allow all-caps names with middle initials (e.g. "LUDMILA I. KUNCHEVA")
+        let hasInitial = parts.contains { $0.range(of: #"^[A-Z]\.$"#, options: .regularExpression) != nil }
+        if hasInitial { return true }
+        let commonAcronyms: Set<String> = ["AI", "ML", "LLM", "RL", "NLP", "CV"]
+        // Require at least one part to contain lowercase letters (or be a known acronym).
+        // Requiring ALL parts to have lowercase was over-filtering Chinese surnames
+        // (e.g. "Xunzhuo Liu" — "Liu" has no lowercase but is clearly a name).
+        return parts.contains { part in
+            if commonAcronyms.contains(part.uppercased()) { return true }
+            return part.range(of: #"[a-z]"#, options: .regularExpression) != nil
         }
     }
 
-    private static func cleanAuthorCandidate(_ value: String) -> String {
+    private static func stripAuthorMarkers(from value: String, replacement: String = "") -> String {
         value
+            .replacingOccurrences(of: "*", with: replacement)
+            .replacingOccurrences(of: "\u{2217}", with: replacement)
+            .replacingOccurrences(of: "†", with: replacement)
+            .replacingOccurrences(of: "‡", with: replacement)
+    }
+
+    private static func cleanAuthorCandidate(_ value: String) -> String {
+        stripAuthorMarkers(from: value)
             .replacingOccurrences(of: #"\d+"#, with: "", options: .regularExpression)
-            .replacingOccurrences(of: #"[†‡*]"#, with: "", options: .regularExpression)
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .trimmingCharacters(in: CharacterSet(charactersIn: ",;"))
@@ -608,6 +869,39 @@ enum PDFSeedExtractor {
     private static func isLikelyPersonName(_ value: String) -> Bool {
         let parts = value.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
         guard (2...5).contains(parts.count) else { return false }
+        // Reject tokens that contain lowercase words longer than 4 chars — these are
+        // almost certainly common English words (e.g. "introduce", "comparable")
+        // rather than name particles like "van", "der", "de".
+        let longLowercaseCount = parts.filter { part in
+            let cleaned = part.trimmingCharacters(in: .punctuationCharacters)
+            guard let first = cleaned.first else { return false }
+            return first.isLowercase && cleaned.count > 4
+        }.count
+        guard longLowercaseCount == 0 else { return false }
+        let lowered = value.lowercased()
+        // Reject common institutional/team/corporate keywords
+        let institutionWords = [
+            "team", "lab", "laboratory", "group", "inc", "ltd",
+            "research", "artificial", "intelligence", "school", "college",
+            "university", "institute", "department", "foundation", "center", "centre",
+            "technology", "corporation", "company", "organization"
+        ]
+        let words = lowered.components(separatedBy: CharacterSet.alphanumerics.inverted)
+        if words.contains(where: { institutionWords.contains($0) }) {
+            return false
+        }
+        // Require at least one standard name-format word (initial cap, rest lowercase)
+        let hasStandardNameWord = parts.contains { part in
+            let cleaned = part.trimmingCharacters(in: .punctuationCharacters)
+            guard cleaned.count >= 2 else { return false }
+            guard let first = cleaned.first else { return false }
+            return first.isUppercase && cleaned.dropFirst().allSatisfy({ $0.isLowercase })
+        }
+        // All-caps names with initials (e.g. "LUDMILA I. KUNCHEVA") should also pass
+        let hasInitial = parts.contains { $0.range(of: #"^[A-Z]\.$"#, options: .regularExpression) != nil }
+        guard hasStandardNameWord || hasInitial else {
+            return false
+        }
         return parts.allSatisfy { part in
             let cleaned = part.trimmingCharacters(in: .punctuationCharacters)
             guard let first = cleaned.first else { return false }
@@ -657,16 +951,17 @@ enum PDFSeedExtractor {
 
         let cleaned = line
             .replacingOccurrences(of: #"\d+"#, with: " ", options: .regularExpression)
-            .replacingOccurrences(of: #"[†‡*]"#, with: " ", options: .regularExpression)
+        let cleaned2 = stripAuthorMarkers(from: cleaned, replacement: " ")
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !cleaned.isEmpty else { return [] }
+        guard !cleaned2.isEmpty else { return [] }
 
-        guard let regex = try? NSRegularExpression(pattern: #"\b([A-Z][a-zA-Z'\-]+\s+[A-Z][a-zA-Z'\-]+)\b"#) else {
+        // Note: no trailing \b because names may be glued to digits (e.g. "Wang1")
+        guard let regex = try? NSRegularExpression(pattern: #"\b([A-Z][a-zA-Z'\-]+\s+[A-Z][a-zA-Z'\-]+)"#) else {
             return []
         }
-        let range = NSRange(cleaned.startIndex..<cleaned.endIndex, in: cleaned)
-        let matches = regex.matches(in: cleaned, range: range)
+        let range = NSRange(cleaned2.startIndex..<cleaned2.endIndex, in: cleaned2)
+        let matches = regex.matches(in: cleaned2, range: range)
 
         let blacklist: Set<String> = [
             "Abstract", "Introduction", "Proceedings", "Conference", "Machine Learning", "Large Language Models"
@@ -686,7 +981,11 @@ enum PDFSeedExtractor {
     }
 
     private static func extractMarkerSeparatedAuthorNames(from line: String) -> [String] {
-        guard line.range(of: #"\d"#, options: .regularExpression) != nil else { return [] }
+        let hasMarkerSymbols = line.range(
+            of: #"\d|[\u{00A7}\u{00B6}\u{2020}-\u{2023}\u{25A0}-\u{25FF}\u{2600}-\u{26FF}]"#,
+            options: .regularExpression
+        ) != nil
+        guard hasMarkerSymbols else { return [] }
         let candidateLine = trimLeadingTitleContextFromMarkedAuthorLine(line)
         guard let markerRegex = try? NSRegularExpression(
             pattern: markerBoundAuthorPattern
@@ -705,19 +1004,17 @@ enum PDFSeedExtractor {
         }
         let markerNames = MetadataNormalization.normalizedAuthors(names)
         let denseNames = extractDenseAuthorNames(from: candidateLine)
-        if denseNames.count > markerNames.count {
+        // Only merge dense names when we already have at least one marker match.
+        // Without this guard, lines that happen to contain digits (e.g. copyright
+        // headers) but no actual author markers can false-positive via dense names.
+        if markerNames.count >= 1 && denseNames.count > markerNames.count {
             return MetadataNormalization.normalizedAuthors(markerNames + denseNames)
         }
+        // Fallback: line carries marker symbols but no explicit marker-digit matches.
+        if markerNames.isEmpty && denseNames.count >= 2 && hasMarkerSymbols {
+            return MetadataNormalization.normalizedAuthors(denseNames)
+        }
         return markerNames
-    }
-
-    private static func extractInlineTitlePrefix(from line: String) -> String? {
-        let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return nil }
-        let prefix = extractInlinePrefixBeforeMarkedAuthorSpan(in: trimmed) ?? trimmed
-        let normalized = MetadataNormalization.normalizeTitle(prefix)
-        guard let normalized, normalized.count >= 10 else { return nil }
-        return normalized
     }
 
     private static func trimLeadingTitleContextFromMarkedAuthorLine(_ line: String) -> String {
@@ -733,21 +1030,22 @@ enum PDFSeedExtractor {
     }
 
     private static func extractInlinePrefixBeforeMarkedAuthorSpan(in line: String) -> String? {
-        guard let boundaryRegex = try? NSRegularExpression(
-            pattern: markerBoundAuthorBoundaryPattern
+        guard let digitRange = line.range(of: #"\d+"#, options: .regularExpression) else { return nil }
+        let beforeDigit = String(line[..<digitRange.lowerBound])
+        guard let nameRegex = try? NSRegularExpression(
+            pattern: #"\b([A-Z][a-zA-Z']+\s+[A-Z][a-zA-Z']+)\s*$"#
         ) else { return nil }
-        let range = NSRange(line.startIndex..<line.endIndex, in: line)
-        guard let match = boundaryRegex.firstMatch(in: line, range: range),
-              let swiftRange = Range(match.range, in: line) else { return nil }
-        let prefix = String(line[..<swiftRange.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+        let range = NSRange(beforeDigit.startIndex..<beforeDigit.endIndex, in: beforeDigit)
+        guard let match = nameRegex.firstMatch(in: beforeDigit, options: [], range: range),
+              let swiftRange = Range(match.range(at: 1), in: beforeDigit) else { return nil }
+        let prefix = String(beforeDigit[..<swiftRange.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
         return prefix.isEmpty ? nil : prefix
     }
 
+    // Note: no trailing \b because names may be glued to digits (e.g. "Wang1")
+    // and \b does not match between a letter and a digit in ICU.
     private static let markerBoundAuthorPattern =
-        #"\b([A-Z][a-zA-Z'\-]+(?:\s+(?:[A-Z]\.|[A-Z][a-z]{1,3}))?\s+[A-Z][a-zA-Z'\-]+)\s*[*†‡]?\s*\d+\b"#
-
-    private static let markerBoundAuthorBoundaryPattern =
-        #"\b[A-Z][a-zA-Z'\-]+\s+[A-Z][a-zA-Z'\-]+\s*[*†‡]?\s*\d+\b"#
+        "\\b([A-Z][a-zA-Z']+(?:\\s+(?:[A-Z]\\.|[A-Z][a-z]{1,3}))?\\s+[A-Z][a-zA-Z']+)\\s*[\u{002A}\u{2217}\u{2020}\u{2021}\u{00A7}\u{00B6}\u{2200}-\u{22FF}\u{25A0}-\u{25FF}\u{2600}-\u{26FF}]?\\s*\\d+"
 
     private static func isLikelyStylizedAuthorLine(_ line: String) -> Bool {
         let lowered = line.lowercased()
@@ -760,35 +1058,33 @@ enum PDFSeedExtractor {
             || lowered.contains("anonymous authors") {
             return false
         }
+        // Titles often contain colons (e.g. "R2-ROUTER: A New Paradigm...");
+        // author lines with superscripts almost never do.
+        if line.contains(":") {
+            return false
+        }
+        // Exclude publisher/copyright boilerplate (e.g. "©2003 Kluwer Academic Publishers")
+        if lowered.contains("publishers")
+            || lowered.contains("manufactured")
+            || lowered.contains("copyright")
+            || lowered.contains("all rights reserved") {
+            return false
+        }
         // Stylized author lines usually carry affiliation markers such as superscript digits/symbols.
-        let hasMarkers = line.range(of: #"[0-9*†‡]"#, options: .regularExpression) != nil
+        let hasMarkers = line.range(
+            of: #"\d|[\u{00A7}\u{00B6}\u{2020}-\u{2023}\u{25A0}-\u{25FF}\u{2600}-\u{26FF}]"#,
+            options: .regularExpression
+        ) != nil
         guard hasMarkers else { return false }
 
-        guard let regex = try? NSRegularExpression(pattern: #"\b[A-Z][a-zA-Z'\-]+(?:\s+[A-Z][a-zA-Z'\-]+){1,2}\b"#) else {
+        // Note: no trailing \b because names may be glued to digits (e.g. "Wang1")
+        // and \b does not match between a letter and a digit in ICU.
+        guard let regex = try? NSRegularExpression(pattern: #"\b[A-Z][a-zA-Z'\-]+(?:\s+[A-Z][a-zA-Z'\-]+){1,2}"#) else {
             return false
         }
         let range = NSRange(line.startIndex..<line.endIndex, in: line)
         let count = regex.numberOfMatches(in: line, range: range)
         return count >= 2
-    }
-
-    private static func isLikelyAuthorContinuationLine(_ line: String) -> Bool {
-        let lowered = line.lowercased()
-        if lowered.contains("abstract")
-            || lowered.contains("introduction")
-            || lowered.contains("correspondence")
-            || looksLikeAffiliationLine(line)
-            || isLikelyVenueHeaderLine(line)
-            || lowered.contains("preliminary work")
-            || lowered.contains("under review") {
-            return false
-        }
-        // Continuations often start with a trailing surname and include separators/author markers.
-        if line.contains(",")
-            || line.range(of: #"[0-9*†‡]"#, options: .regularExpression) != nil {
-            return true
-        }
-        return false
     }
 
     private static func isLikelyVenueHeaderLine(_ line: String) -> Bool {
@@ -805,34 +1101,6 @@ enum PDFSeedExtractor {
             return true
         }
         return false
-    }
-
-    private static func stitchLikelySplitAuthorTokens(_ rawTokens: [String]) -> [String] {
-        var output: [String] = []
-        var index = 0
-
-        func isSingleNameToken(_ token: String) -> Bool {
-            let cleaned = cleanAuthorCandidate(token)
-            let parts = cleaned.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
-            guard parts.count == 1, let word = parts.first else { return false }
-            guard word.count >= 2 else { return false }
-            guard let first = word.first, first.isUppercase else { return false }
-            return word.allSatisfy { $0.isLetter || $0 == "-" || $0 == "'" }
-        }
-
-        while index < rawTokens.count {
-            let current = rawTokens[index]
-            if index + 1 < rawTokens.count,
-               isSingleNameToken(current),
-               isSingleNameToken(rawTokens[index + 1]) {
-                output.append(current + " " + rawTokens[index + 1])
-                index += 2
-                continue
-            }
-            output.append(current)
-            index += 1
-        }
-        return output
     }
 
     private static func mergeVenueContinuationIfNeeded(baseLine: String, index: Int, lines: [String]) -> String {

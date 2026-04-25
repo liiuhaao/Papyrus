@@ -177,6 +177,21 @@ struct MetadataResolver {
             apply(candidate.metadata, to: &merged)
         }
 
+        // When the PDF seed identifies a formal publication (conference/journal)
+        // but online sources returned an arXiv/preprint record, preserve the seed's
+        // venue and year instead of overwriting with the preprint source.
+        if let seedVenue = seed.venue,
+           let seedType = MetadataParsers.inferPublicationType(venue: seedVenue, doi: nil, arxivId: nil),
+           seedType == "conference" || seedType == "journal" {
+            let mergedType = MetadataParsers.inferPublicationType(venue: merged.venue, doi: nil, arxivId: nil)
+            if mergedType == "preprint" || mergedType == nil || merged.venue == nil {
+                merged.venue = seedVenue
+            }
+            if seed.year > 0 {
+                merged.year = seed.year
+            }
+        }
+
         if merged.publicationType == nil {
             merged.publicationType = MetadataParsers.inferPublicationType(
                 venue: merged.venue,

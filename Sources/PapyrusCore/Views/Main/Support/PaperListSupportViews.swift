@@ -5,6 +5,7 @@ struct PaperRowView: View {
     let paper: Paper
     let searchText: String
     @ObservedObject private var appConfig = AppConfig.shared
+    @ObservedObject private var stateStore = PaperTransientStateStore.shared
 
     private var rowSpacing: CGFloat { ListRowLayoutMetrics.stackSpacing }
     private var metaSpacing: CGFloat { ListRowLayoutMetrics.metaSpacing }
@@ -231,7 +232,8 @@ struct PaperRowView: View {
                         .frame(height: ListRowLayoutMetrics.statusSlotHeight, alignment: .center)
                 }
 
-                if let workflowStatus = paper.workflowStatus, workflowStatus.hasVisiblePhases {
+                let workflowStatus = stateStore.workflowStatus(for: paper.objectID)
+                if let workflowStatus, workflowStatus.hasVisiblePhases {
                     WorkflowStatusStrip(status: workflowStatus)
                         .frame(height: ListRowLayoutMetrics.statusSlotHeight, alignment: .center)
                 } else if appConfig.showStatusInList {

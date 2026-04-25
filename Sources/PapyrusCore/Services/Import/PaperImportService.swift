@@ -22,7 +22,7 @@ enum PaperImportError: LocalizedError {
 @MainActor
 final class PaperImportService {
     typealias PDFDownloadClient = @Sendable (URLRequest) async throws -> URL
-    typealias PDFSeedClient = @Sendable (URL) async -> PDFSeed
+    typealias PDFSeedClient = @Sendable (URL) -> PDFSeed
     typealias WebpageMetadataClient = @Sendable (URL) async throws -> WebpageMetadata
     typealias PaperChangeHandler = @MainActor @Sendable (NSManagedObjectID) -> Void
 
@@ -209,7 +209,6 @@ final class PaperImportService {
     private let downloadPDF: PDFDownloadClient
     private let extractPDFSeed: PDFSeedClient
     private let fetchWebpageMetadataClient: WebpageMetadataClient
-    private let terminalWorkflowStatusDisplayNanoseconds: UInt64 = 2_000_000_000
 
     init(
         viewContext: NSManagedObjectContext,
@@ -228,7 +227,7 @@ final class PaperImportService {
             let (tempURL, _) = try await URLSession.shared.download(for: request)
             return tempURL
         }
-        self.extractPDFSeed = extractPDFSeed ?? { await PDFSeedExtractor.extract(from: $0) }
+        self.extractPDFSeed = extractPDFSeed ?? { PDFSeedExtractor.extract(from: $0) }
         self.fetchWebpageMetadataClient = fetchWebpageMetadataClient ?? { url in
             try await Self.fetchWebpageMetadata(from: url)
         }
@@ -563,7 +562,7 @@ final class PaperImportService {
         onStageChange: @escaping (WorkflowStage) -> Void
     ) async throws -> ImportDraft {
         onStageChange(.extracting)
-        let pdfSeed = await extractPDFSeed(url)
+        let pdfSeed = extractPDFSeed(url)
         var draft = ImportDraft(
             sourcePDFURL: url,
             originalFilename: makeOriginalFilename(from: preferredFilename ?? url.lastPathComponent)
@@ -616,7 +615,7 @@ final class PaperImportService {
         if let sourcePDFURL {
             do {
                 onStageChange(.extracting)
-                let pdfSeed = await extractPDFSeed(sourcePDFURL)
+                let pdfSeed = extractPDFSeed(sourcePDFURL)
                 try applyPDFSeed(
                     pdfSeed,
                     to: objectID,
@@ -660,7 +659,6 @@ final class PaperImportService {
                 paper.filePath = nil
             }
             syncVenueRelationship(for: paper)
-            paper.workflowStatus = nil
             try viewContext.obtainPermanentIDs(for: [paper])
             try viewContext.save()
             return paper.objectID
@@ -738,30 +736,11 @@ final class PaperImportService {
         for objectID: NSManagedObjectID,
         fetch: PaperWorkflowPhase
     ) throws {
-        guard let paper = try viewContext.existingObject(with: objectID) as? Paper else {
+        guard try viewContext.existingObject(with: objectID) is Paper else {
             throw PaperImportError.importFailed
         }
         let status = PaperWorkflowStatus(fetch: fetch)
-        paper.workflowStatus = status
-        try viewContext.save()
-        scheduleWorkflowStatusAutoClearIfNeeded(for: objectID, expectedStatus: status)
-    }
-
-    private func scheduleWorkflowStatusAutoClearIfNeeded(
-        for objectID: NSManagedObjectID,
-        expectedStatus: PaperWorkflowStatus
-    ) {
-        guard expectedStatus.shouldAutoClear else { return }
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            try? await Task.sleep(nanoseconds: terminalWorkflowStatusDisplayNanoseconds)
-            guard let paper = try? self.viewContext.existingObject(with: objectID) as? Paper,
-                  paper.workflowStatus == expectedStatus else {
-                return
-            }
-            paper.workflowStatus = nil
-            try? self.viewContext.save()
-        }
+        PaperTransientStateStore.shared.setWorkflowStatus(status, for: objectID)
     }
 
     private func cleanupTemporaryFiles(in workingSet: ImportWorkingSet) {

@@ -36,7 +36,7 @@ struct InspectorHostView: View {
                 suggestions: allKnownTags,
                 onSaved: { paper in
                     viewModel.findOrCreateVenue(for: paper)
-                    viewModel.fetchPapers()
+                    Task { await viewModel.fetchPapers() }
                 },
                 onClose: {
                     detailModel.showEditMetadata = false

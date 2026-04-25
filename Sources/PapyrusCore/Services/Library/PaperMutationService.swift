@@ -3,7 +3,7 @@ import CoreData
 
 @MainActor
 final class PaperMutationService {
-    typealias PDFSeedClient = @Sendable (URL) async -> PDFSeed
+    typealias PDFSeedClient = @Sendable (URL) -> PDFSeed
 
     struct MetadataRefreshReceipt {
         let objectID: NSManagedObjectID
@@ -18,7 +18,6 @@ final class PaperMutationService {
     private let fileStorage: FileStorageProviding
     private let extractPDFSeed: PDFSeedClient
     private let venueLookupTimeoutSeconds: Double = 8
-    private let terminalWorkflowStatusDisplayNanoseconds: UInt64 = 2_000_000_000
 
     init(
         viewContext: NSManagedObjectContext,
@@ -35,7 +34,7 @@ final class PaperMutationService {
         self.rankProvider = rankProvider
         self.venueAbbreviationProvider = venueAbbreviationProvider
         self.fileStorage = fileStorage
-        self.extractPDFSeed = extractPDFSeed ?? { await PDFSeedExtractor.extract(from: $0) }
+        self.extractPDFSeed = extractPDFSeed ?? { PDFSeedExtractor.extract(from: $0) }
     }
 
     func deletePaper(_ paper: Paper) throws {
@@ -169,7 +168,7 @@ final class PaperMutationService {
             )
         }
 
-        let pdfSeed = await extractPDFSeed(URL(fileURLWithPath: filePath))
+        let pdfSeed = extractPDFSeed(URL(fileURLWithPath: filePath))
         paper.applySourceSeed(
             title: pdfSeed.title,
             authors: pdfSeed.authors,
@@ -191,26 +190,7 @@ final class PaperMutationService {
     }
 
     private func persistWorkflowStatus(_ status: PaperWorkflowStatus, for paper: Paper) {
-        paper.workflowStatus = status
-        try? viewContext.save()
-        scheduleWorkflowStatusAutoClearIfNeeded(for: paper.objectID, expectedStatus: status)
-    }
-
-    private func scheduleWorkflowStatusAutoClearIfNeeded(
-        for objectID: NSManagedObjectID,
-        expectedStatus: PaperWorkflowStatus
-    ) {
-        guard expectedStatus.shouldAutoClear else { return }
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            try? await Task.sleep(nanoseconds: terminalWorkflowStatusDisplayNanoseconds)
-            guard let paper = try? self.viewContext.existingObject(with: objectID) as? Paper,
-                  paper.workflowStatus == expectedStatus else {
-                return
-            }
-            paper.workflowStatus = nil
-            try? self.viewContext.save()
-        }
+        PaperTransientStateStore.shared.setWorkflowStatus(status, for: paper.objectID)
     }
 
     private func refreshPDFStage(for paper: Paper) async throws -> Bool {
@@ -219,7 +199,7 @@ final class PaperMutationService {
             return false
         }
 
-        let pdfSeed = await extractPDFSeed(URL(fileURLWithPath: filePath))
+        let pdfSeed = extractPDFSeed(URL(fileURLWithPath: filePath))
         guard pdfSeed.hasMeaningfulMetadata else {
             return false
         }

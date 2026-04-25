@@ -294,8 +294,13 @@ final class GalleryInteractionModel: ObservableObject, LibrarySelectionModeling 
 
     func handleExternalSelectionChange(in papers: [Paper]) {
         updateCurrentPapers(papers)
+        let ordered = orderedSelectedIDs(in: papers, selectedIDs: selectedIDs, id: \.objectID)
+        // Defensive: don't clear selection if papers array is stale/missing selected items
+        if ordered.isEmpty && !selectedIDs.isEmpty {
+            return
+        }
         applyExternalSelection(
-            orderedIDs: orderedSelectedIDs(in: papers, selectedIDs: selectedIDs, id: \.objectID),
+            orderedIDs: ordered,
             preferredPrimaryID: primarySelectionID ?? lastSelectionID,
             trigger: lastSelectionTrigger
         )

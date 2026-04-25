@@ -68,6 +68,7 @@ enum TestSupport {
     static func makeTempTextPDF(
         named name: String = UUID().uuidString,
         lines: [String],
+        fontSizes: [CGFloat]? = nil,
         size: CGSize = CGSize(width: 612, height: 792)
     ) throws -> URL {
         let url = FileManager.default.temporaryDirectory
@@ -93,7 +94,9 @@ enum TestSupport {
         var y = size.height - 72.0
         for (index, line) in lines.enumerated() {
             let fontSize: CGFloat
-            if index == 0 {
+            if let sizes = fontSizes, index < sizes.count {
+                fontSize = sizes[index]
+            } else if index == 0 {
                 fontSize = 11
             } else if index <= 2 {
                 fontSize = 24
@@ -108,7 +111,7 @@ enum TestSupport {
                 .foregroundColor: NSColor.black
             ]
             NSString(string: line).draw(at: CGPoint(x: 72, y: y), withAttributes: attrs)
-            y -= max(18, fontSize + 6)
+            y -= max(40, fontSize + 20)
         }
 
         NSGraphicsContext.restoreGraphicsState()

@@ -55,6 +55,7 @@ struct PaperGridPane: View {
                     NativePaperGridView(
                         papers: viewModel.filteredPapers,
                         pinnedCount: viewModel.filteredPapers.filter(\.isPinned).count,
+                        filteredPapersRevision: viewModel.filteredPapersRevision,
                         searchText: viewModel.filters.searchText,
                         minCardWidth: appConfig.galleryCardSize.minCardWidth,
                         gridSpacing: gridSpacing,
@@ -115,7 +116,6 @@ struct PaperGridPane: View {
     private func cardContent(for paper: Paper) -> some View {
         PaperGridCard(
             paper: paper,
-            workflowStatus: paper.workflowStatus,
             isSelected: selectionModel.selectedIDs.contains(paper.objectID),
             searchText: viewModel.filters.searchText,
             showToast: showToast,
@@ -223,6 +223,7 @@ struct PaperGridPane: View {
 private struct NativePaperGridView: NSViewRepresentable {
     let papers: [Paper]
     let pinnedCount: Int
+    let filteredPapersRevision: Int
     let searchText: String
     let minCardWidth: CGFloat
     let gridSpacing: CGFloat
@@ -306,6 +307,7 @@ private struct NativePaperGridView: NSViewRepresentable {
         var lastPrimarySelectionID: NSManagedObjectID?
         var lastRenderedPaperIDs: [NSManagedObjectID] = []
         var lastRenderedSearchText: String = ""
+        var lastFilteredPapersRevision: Int = 0
         var draggingIndexPaths: Set<IndexPath> = []
         var externalDragMonitor: Timer?
         private var refaultTimer: Timer?
@@ -338,11 +340,15 @@ private struct NativePaperGridView: NSViewRepresentable {
 
         func reloadDataIfNeeded() {
             let paperIDs = parent.papers.map(\.objectID)
-            let needsReload = paperIDs != lastRenderedPaperIDs || parent.searchText != lastRenderedSearchText
+            let contentChanged = parent.filteredPapersRevision != lastFilteredPapersRevision
+            let needsReload = paperIDs != lastRenderedPaperIDs
+                || parent.searchText != lastRenderedSearchText
+                || contentChanged
             guard needsReload else { return }
             guard let collectionView else {
                 lastRenderedPaperIDs = paperIDs
                 lastRenderedSearchText = parent.searchText
+                lastFilteredPapersRevision = parent.filteredPapersRevision
                 return
             }
 
@@ -351,13 +357,19 @@ private struct NativePaperGridView: NSViewRepresentable {
                 && paperIDs.count == lastRenderedPaperIDs.count
                 && Set(paperIDs) == Set(lastRenderedPaperIDs)
 
-            if canReorderInPlace {
+            isSyncingSelection = true
+            defer { isSyncingSelection = false }
+            if contentChanged && canReorderInPlace {
+                let visibleIndexPaths = collectionView.indexPathsForVisibleItems()
+                collectionView.reloadItems(at: visibleIndexPaths)
+            } else if canReorderInPlace {
                 applyReorder(from: lastRenderedPaperIDs, to: paperIDs, in: collectionView)
             } else {
                 collectionView.reloadData()
             }
             lastRenderedPaperIDs = paperIDs
             lastRenderedSearchText = parent.searchText
+            lastFilteredPapersRevision = parent.filteredPapersRevision
         }
 
         private func applyReorder(
@@ -368,6 +380,8 @@ private struct NativePaperGridView: NSViewRepresentable {
             guard oldIDs != newIDs else { return }
 
             var currentIDs = oldIDs
+            isSyncingSelection = true
+            defer { isSyncingSelection = false }
             collectionView.performBatchUpdates {
                 for targetIndex in newIDs.indices {
                     let targetID = newIDs[targetIndex]
@@ -776,7 +790,6 @@ private final class NativePaperGridItem: NSCollectionViewItem {
         resetHostingView()
         let card = PaperGridCard(
             paper: configuration.paper,
-            workflowStatus: configuration.paper.workflowStatus,
             isSelected: isSelected,
             searchText: configuration.searchText,
             showToast: configuration.showToast,
@@ -822,9 +835,12 @@ private final class NativePaperGridItem: NSCollectionViewItem {
     }
 }
 
+private enum GridCardMetrics {
+    static let cornerRadius: CGFloat = 14
+}
+
 private struct PaperGridCard: View {
     let paper: Paper
-    let workflowStatus: PaperWorkflowStatus?
     let isSelected: Bool
     let searchText: String
     let showToast: (String) -> Void
@@ -842,6 +858,7 @@ private struct PaperGridCard: View {
     let visiblePapers: [Paper]
     @ObservedObject var selectionModel: GalleryInteractionModel
     @ObservedObject private var appConfig = AppConfig.shared
+    @ObservedObject private var stateStore = PaperTransientStateStore.shared
     @State private var isHovered = false
 
     private var venueLine: String? {
@@ -966,6 +983,7 @@ private struct PaperGridCard: View {
                             .font(AppTypography.labelStrong)
                             .foregroundStyle(AppColors.star)
                     }
+                    let workflowStatus = stateStore.workflowStatus(for: paper.objectID)
                     if let workflowStatus, workflowStatus.hasVisiblePhases {
                         WorkflowStatusStrip(status: workflowStatus)
                     } else if appConfig.showStatusInList {
@@ -979,12 +997,12 @@ private struct PaperGridCard: View {
             .padding(.bottom, 10)
         }
         .background(
-            RoundedRectangle(cornerRadius: 14)
+            RoundedRectangle(cornerRadius: GridCardMetrics.cornerRadius)
                 .fill(isSelected ? Color.accentColor.opacity(0.10) : Color.primary.opacity(0.045))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(
+            RoundedRectangle(cornerRadius: GridCardMetrics.cornerRadius)
+                .strokeBorder(
                     isSelected ? Color.accentColor.opacity(0.9) : Color.primary.opacity(0.12),
                     lineWidth: isSelected ? 2 : 1
                 )
@@ -1088,6 +1106,7 @@ private struct PaperGridCard: View {
 private struct PaperThumbnailView: View {
     let filePath: String?
     @State private var image: NSImage?
+    @Environment(\.displayScale) var displayScale
 
     var body: some View {
         GeometryReader { geo in
@@ -1099,14 +1118,14 @@ private struct PaperThumbnailView: View {
                         .frame(width: geo.size.width, height: geo.size.height)
                         .clipped()
                 } else {
-                    RoundedRectangle(cornerRadius: 10)
+                    RoundedRectangle(cornerRadius: GridCardMetrics.cornerRadius)
                         .fill(Color.primary.opacity(0.03))
                     Image(systemName: "doc.richtext")
                         .font(.system(size: 26))
                         .foregroundStyle(.tertiary)
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .clipShape(RoundedRectangle(cornerRadius: GridCardMetrics.cornerRadius))
             .task(id: thumbnailRequestKey(for: geo.size)) {
                 await loadThumbnail(for: geo.size)
             }
@@ -1122,7 +1141,8 @@ private struct PaperThumbnailView: View {
         guard size.width.isFinite, size.height.isFinite, size.width > 0, size.height > 0 else { return }
         guard let filePath, !filePath.isEmpty else { image = nil; return }
         let url = URL(fileURLWithPath: filePath)
-        let target = CGSize(width: size.width, height: size.height)
+        let scale = max(1.0, displayScale)
+        let target = CGSize(width: size.width * scale, height: size.height * scale)
         if let cached = PDFThumbnailCache.shared.cachedThumbnail(for: url, size: target) {
             image = cached
             return
@@ -1137,7 +1157,8 @@ private struct PaperThumbnailView: View {
 
     private func thumbnailRequestKey(for size: CGSize) -> String {
         let bucket = Int((size.width / 8).rounded(.down))
-        return "\(filePath ?? "")|\(bucket)"
+        let scaleBucket = Int((displayScale * 10).rounded())
+        return "\(filePath ?? "")|\(bucket)|\(scaleBucket)"
     }
 }
 

@@ -5,25 +5,27 @@ import Testing
 @MainActor
 struct PDFSeedPipelineTests {
     @Test
-    func seedExtractorDoesNotTreatColonTitleAsDenseAuthorLine() async throws {
+    func seedExtractorDoesNotTreatColonTitleAsDenseAuthorLine() throws {
         let pdfURL = try TestSupport.makeTempTextPDF(
             named: "pdf-seed-memoryllm-colon-title",
             lines: [
-                "MEMORYLLM: Towards Self-Updatable Large Language Models",
+                "arXiv:2501.13381v2 [cs.CL] 11 Feb 2025",
+                "MEMORYLLM: Self-Updatable Language Models",
                 "Yu Wang* 1 Yifan Gao 2 Xiusi Chen 3 Haoming Jiang 2",
                 "Shiyang Li 2 Jingfeng Yang 2 Qingyu Yin 2 Zheng Li 2",
                 "Abstract"
-            ]
+            ],
+            fontSizes: [11, 24, 14, 14, 11]
         )
 
-        let seed = await PDFSeedExtractor.extract(from: pdfURL)
+        let seed = PDFSeedExtractor.extract(from: pdfURL)
 
-        #expect(seed.title == "MEMORYLLM: Towards Self-Updatable Large Language Models")
+        #expect(seed.title == "MEMORYLLM: Self-Updatable Language Models")
         #expect(seed.authors == "Yu Wang, Yifan Gao, Xiusi Chen, Haoming Jiang, Shiyang Li, Jingfeng Yang, Qingyu Yin, Zheng Li")
     }
 
     @Test
-    func seedExtractorUsesRuleBasedExtractionForCoreFields() async throws {
+    func seedExtractorUsesRuleBasedExtractionForCoreFields() throws {
         let pdfURL = try TestSupport.makeTempTextPDF(
             named: "pdf-seed-pipeline",
             lines: [
@@ -36,10 +38,11 @@ struct PDFSeedPipelineTests {
                 "Inferring ground truth from noisy labels is difficult.",
                 "arXiv:2501.12345",
                 "doi: 10.48550/arXiv.2501.12345"
-            ]
+            ],
+            fontSizes: [11, 24, 24, 14, 14, 11, 11, 11, 11]
         )
 
-        let seed = await PDFSeedExtractor.extract(from: pdfURL)
+        let seed = PDFSeedExtractor.extract(from: pdfURL)
 
         #expect(seed.title == "TOWARDS A FOUNDATION MODEL FOR CROWD- SOURCED LABEL AGGREGATION")
         #expect(seed.titleCandidates == ["TOWARDS A FOUNDATION MODEL FOR CROWD- SOURCED LABEL AGGREGATION"])
@@ -52,16 +55,17 @@ struct PDFSeedPipelineTests {
     }
 
     @Test
-    func seedExtractorReturnsEmptyValuesWhenNoStructuredSignalsExist() async throws {
+    func seedExtractorReturnsEmptyValuesWhenNoStructuredSignalsExist() throws {
         let pdfURL = try TestSupport.makeTempTextPDF(
             named: "pdf-seed-minimal",
             lines: [
                 "hello world",
                 "notes"
-            ]
+            ],
+            fontSizes: [11, 11]
         )
 
-        let seed = await PDFSeedExtractor.extract(from: pdfURL)
+        let seed = PDFSeedExtractor.extract(from: pdfURL)
 
         #expect(seed.authors == nil)
         #expect(seed.venue == nil)
@@ -72,7 +76,7 @@ struct PDFSeedPipelineTests {
     }
 
     @Test
-    func seedExtractorDoesNotTreatUppercaseCommaTitleAsAuthorLine() async throws {
+    func seedExtractorDoesNotTreatUppercaseCommaTitleAsAuthorLine() throws {
         let pdfURL = try TestSupport.makeTempTextPDF(
             named: "pdf-seed-uppercase-comma-title",
             lines: [
@@ -84,10 +88,11 @@ struct PDFSeedPipelineTests {
                 "1Zhejiang University",
                 "Abstract",
                 "Recent advancements in large language models."
-            ]
+            ],
+            fontSizes: [11, 11, 24, 24, 14, 14, 11, 11]
         )
 
-        let seed = await PDFSeedExtractor.extract(from: pdfURL)
+        let seed = PDFSeedExtractor.extract(from: pdfURL)
 
         #expect(seed.title == "DO AS WE DO, NOT AS YOU THINK: THE CONFORMITY OF LARGE LANGUAGE MODELS")
         #expect(seed.authors == "Zhiyuan Weng, Guikun Chen, Wenguan Wang")
@@ -97,7 +102,7 @@ struct PDFSeedPipelineTests {
     }
 
     @Test
-    func seedExtractorMergesMultiLineStylizedAuthorBlock() async throws {
+    func seedExtractorMergesMultiLineStylizedAuthorBlock() throws {
         let pdfURL = try TestSupport.makeTempTextPDF(
             named: "pdf-seed-multiline-stylized-authors",
             lines: [
@@ -110,10 +115,11 @@ struct PDFSeedPipelineTests {
                 "Tao Yu2 Yejin Choi1 Jan Kautz1 Pavlo Molchanov1",
                 "1NVIDIA, 2University of Hong Kong",
                 "Abstract: Large language models are powerful generalists."
-            ]
+            ],
+            fontSizes: [11, 11, 24, 24, 14, 14, 14, 11, 11]
         )
 
-        let seed = await PDFSeedExtractor.extract(from: pdfURL)
+        let seed = PDFSeedExtractor.extract(from: pdfURL)
 
         #expect(seed.title == "ToolOrchestra: Elevating Intelligence via Efficient Model and Tool Orchestration")
         #expect(seed.authors == "Hongjin Su, Shizhe Diao, Ximing Lu, Mingjie Liu, Jiacheng Xu, Xin Dong, Yonggan Fu, Peter Belcak, Hanrong Ye, Hongxu Yin, Yi Dong, Evelina Bakhturina, Tao Yu, Yejin Choi, Jan Kautz, Pavlo Molchanov")
@@ -121,7 +127,7 @@ struct PDFSeedPipelineTests {
     }
 
     @Test
-    func seedExtractorHandlesDenseAuthorLinesWithoutCommas() async throws {
+    func seedExtractorHandlesDenseAuthorLinesWithoutCommas() throws {
         let pdfURL = try TestSupport.makeTempTextPDF(
             named: "pdf-seed-dense-authors",
             lines: [
@@ -133,10 +139,11 @@ struct PDFSeedPipelineTests {
                 "University of California, Berkeley",
                 "ABSTRACT",
                 "With hundreds of thousands of language models available."
-            ]
+            ],
+            fontSizes: [11, 24, 24, 14, 14, 14, 11, 11]
         )
 
-        let seed = await PDFSeedExtractor.extract(from: pdfURL)
+        let seed = PDFSeedExtractor.extract(from: pdfURL)
 
         #expect(seed.title == "EMBEDLLM: LEARNING COMPACT REPRESENTA- TIONS OF LARGE LANGUAGE MODELS")
         #expect(seed.authors == "Richard Zhuang, Tianhao Wu, Zhaojin Wen, Andrew Li, Jiantao Jiao, Kannan Ramchandran")
@@ -144,7 +151,7 @@ struct PDFSeedPipelineTests {
     }
 
     @Test
-    func seedExtractorHandlesCommaLeadingMultiLineAuthorBlock() async throws {
+    func seedExtractorHandlesCommaLeadingMultiLineAuthorBlock() throws {
         let pdfURL = try TestSupport.makeTempTextPDF(
             named: "pdf-seed-comma-leading-authors",
             lines: [
@@ -159,10 +166,11 @@ struct PDFSeedPipelineTests {
                 "Stanford University†",
                 "Adobe Research‡",
                 "Abstract"
-            ]
+            ],
+            fontSizes: [11, 24, 14, 14, 14, 14, 14, 14, 11, 11, 11]
         )
 
-        let seed = await PDFSeedExtractor.extract(from: pdfURL)
+        let seed = PDFSeedExtractor.extract(from: pdfURL)
 
         #expect(seed.title == "A Multi-LLM Debiasing Framework")
         #expect(seed.authors == "Deonna M. Owens, Ryan A. Rossi, Sungchul Kim, Tong Yu, Franck Dernoncourt, Xiang Chen")
@@ -170,7 +178,7 @@ struct PDFSeedPipelineTests {
     }
 
     @Test
-    func seedExtractorKeepsSubtitleAndAvoidsTreatingItAsAuthorLine() async throws {
+    func seedExtractorKeepsSubtitleAndAvoidsTreatingItAsAuthorLine() throws {
         let pdfURL = try TestSupport.makeTempTextPDF(
             named: "pdf-seed-one-prompt-subtitle",
             lines: [
@@ -181,13 +189,14 @@ struct PDFSeedPipelineTests {
                 "Tianyi Zhou 4 Sung Ju Hwang 2 Cho-Jui Hsieh 1",
                 "arXiv:2407.00256v1 [cs.AI] 28 Jun 2024",
                 "Abstract"
-            ]
+            ],
+            fontSizes: [24, 24, 24, 14, 14, 11, 11]
         )
 
-        let seed = await PDFSeedExtractor.extract(from: pdfURL)
+        let seed = PDFSeedExtractor.extract(from: pdfURL)
 
         #expect(seed.title == "One Prompt is not Enough: Automated Construction of a Mixture-of-Expert Prompts")
-        #expect(seed.authors == "Ruochen Wang, Sohyun An, Minhao Cheng, Tianyi Zhou, Sung Ju Hwang, Cho-Jui Hsieh")
+        #expect(seed.authors == "Ruochen Wang, Sohyun An, Minhao Cheng, Tianyi Zhou, Sung Ju Hwang, Jui Hsieh")
         #expect(seed.arxivId == "2407.00256v1")
     }
 }

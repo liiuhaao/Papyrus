@@ -148,7 +148,7 @@ extension ContentView {
         paper.cycleReadingStatus()
         paper.dateModified = Date()
         try? paper.managedObjectContext?.save()
-        viewModel.fetchPapers()
+        Task { await viewModel.fetchPapers() }
         presentationState.showToast("Status: " + paper.currentReadingStatus.label)
     }
 

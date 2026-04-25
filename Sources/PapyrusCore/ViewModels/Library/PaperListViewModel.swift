@@ -100,7 +100,7 @@ class PaperListViewModel: ObservableObject {
                 self?.refreshVenueCounts()
             }
             .store(in: &cancellables)
-        fetchPapers()
+        Task { await fetchPapers() }
 
         notificationObservers.append(NotificationCenter.default.addObserver(
             forName: .libraryWillSwitch, object: nil, queue: nil) { [weak self] _ in
@@ -115,7 +115,7 @@ class PaperListViewModel: ObservableObject {
             forName: .libraryDidSwitch, object: nil, queue: .main) { [weak self] _ in
             Task { @MainActor in
                 self?.resetMetadataRefreshState()
-                self?.fetchPapers()
+                await self?.fetchPapers()
             }
         })
 
@@ -129,10 +129,9 @@ class PaperListViewModel: ObservableObject {
             object: context,
             queue: .main
         ) { [weak self] notification in
-            Task { @MainActor in
-                self?.handleContextDidSave(notification)
-            }
+            self?.handleContextDidSave(notification)
         })
+
         setupFilterPipeline()
     }
 
@@ -176,17 +175,12 @@ class PaperListViewModel: ObservableObject {
 
         guard insertedOrDeletedPapers || venueStructureChanged || paperOrVenueUpdated else { return }
 
-        // Invalidate cached papers array so it reloads fresh on next use
-        if insertedOrDeletedPapers || venueStructureChanged || containsManagedObjects(of: Paper.self, in: updated) {
-            papers = []
-        }
-
         if insertedOrDeletedPapers || venueStructureChanged {
-            fetchPapers()
+            Task { await fetchPapers() }
             return
         }
 
-        refreshFacetCaches()
+        refreshFacetCachesSync()
         refetchFiltered()
         refreshTotalCount()
     }
@@ -226,8 +220,8 @@ class PaperListViewModel: ObservableObject {
         }
     }
 
-    func fetchPapers() {
-        refreshFacetCaches()
+    func fetchPapers() async {
+        await refreshFacetCaches()
         refetchFiltered()
         refreshTotalCount()
     }
@@ -238,7 +232,7 @@ class PaperListViewModel: ObservableObject {
         totalPaperCount = (try? viewContext.fetch(request).first?.intValue) ?? 0
     }
 
-    private func refreshFacetCaches() {
+    private func refreshFacetCachesSync() {
         venueCounts = PaperQueryService.fetchVenueCounts(context: viewContext)
         yearCounts = PaperQueryService.fetchYearCounts(context: viewContext)
         publicationTypeCounts = PaperQueryService.fetchPublicationTypeCounts(context: viewContext)
@@ -248,6 +242,47 @@ class PaperListViewModel: ObservableObject {
             visibleSourceKeys: AppConfig.shared.rankBadgeSources
         )
         flaggedCount = PaperQueryService.fetchFlaggedCount(context: viewContext)
+    }
+
+    private func refreshFacetCaches() async {
+        guard let psc = viewContext.persistentStoreCoordinator else { return }
+        let visibleSourceKeys = AppConfig.shared.rankBadgeSources
+
+        async let venueTask = fetchFacet(psc: psc) { ctx in
+            PaperQueryService.fetchVenueCounts(context: ctx)
+        }
+        async let yearTask = fetchFacet(psc: psc) { ctx in
+            PaperQueryService.fetchYearCounts(context: ctx)
+        }
+        async let typeTask = fetchFacet(psc: psc) { ctx in
+            PaperQueryService.fetchPublicationTypeCounts(context: ctx)
+        }
+        async let tagTask = fetchFacet(psc: psc) { ctx in
+            PaperQueryService.fetchTagCounts(context: ctx)
+        }
+        async let rankTask = fetchFacet(psc: psc) { ctx in
+            PaperQueryService.fetchRankKeywordCounts(context: ctx, visibleSourceKeys: visibleSourceKeys)
+        }
+        async let flaggedTask = fetchFacet(psc: psc) { ctx in
+            PaperQueryService.fetchFlaggedCount(context: ctx)
+        }
+
+        let (venue, year, type, tag, rank, flagged) = await (venueTask, yearTask, typeTask, tagTask, rankTask, flaggedTask)
+
+        venueCounts = venue
+        yearCounts = year
+        publicationTypeCounts = type
+        tagCounts = tag
+        rankKeywordCounts = rank
+        flaggedCount = flagged
+    }
+
+    private func fetchFacet<T>(psc: NSPersistentStoreCoordinator, _ operation: @escaping (NSManagedObjectContext) -> T) async -> T {
+        let ctx = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        ctx.persistentStoreCoordinator = psc
+        return await ctx.perform {
+            operation(ctx)
+        }
     }
 
     private func refreshVenueCounts() {
@@ -387,7 +422,7 @@ class PaperListViewModel: ObservableObject {
                         onStageChange: updateStage
                     )
 
-                    fetchPapers()
+                    await fetchPapers()
                     updateStage(.queued)
                     if let queuedPaper = resolvePaper(id: detail.id) {
                         enqueueMetadataRefresh(
@@ -529,7 +564,7 @@ class PaperListViewModel: ObservableObject {
 
         do {
             try libraryCommands.deletePaper(id: paper.id)
-            fetchPapers()
+            Task { await fetchPapers() }
         } catch {
             taskState.errorMessage = "Failed to delete: " + error.localizedDescription
         }
@@ -541,7 +576,7 @@ class PaperListViewModel: ObservableObject {
         }
         do {
             try libraryCommands.deletePapers(ids: papers.map(\.id))
-            fetchPapers()
+            Task { await fetchPapers() }
         } catch {
             taskState.errorMessage = "Failed to delete: " + error.localizedDescription
         }
@@ -551,7 +586,7 @@ class PaperListViewModel: ObservableObject {
     func deleteAllPapers() {
         do {
             try libraryCommands.deleteAllPapers()
-            fetchPapers()
+            Task { await fetchPapers() }
         } catch {
             taskState.errorMessage = "Failed to delete all: " + error.localizedDescription
         }
@@ -583,7 +618,7 @@ class PaperListViewModel: ObservableObject {
         Task {
             do {
                 _ = try await libraryCommands.reextractMetadataSeed(id: paper.id)
-                fetchPapers()
+                await fetchPapers()
             } catch {
                 taskState.errorMessage = "Failed to re-extract from PDF: " + error.localizedDescription
             }
@@ -677,7 +712,7 @@ class PaperListViewModel: ObservableObject {
         refreshTaskIDs.removeValue(forKey: objectID)
         refreshModes.removeValue(forKey: objectID)
         refreshInFlight.remove(objectID)
-        fetchPapers()
+        Task { @MainActor in await fetchPapers() }
     }
 
     private func publishPaperStateChange() {
@@ -695,12 +730,13 @@ class PaperListViewModel: ObservableObject {
     }
 
     private func applyQueuedWorkflowStatus(for objectID: NSManagedObjectID, mode: MetadataRefreshMode) {
-        guard let paper = resolvePaper(for: objectID) else { return }
         switch mode {
         case .full, .fetchOnly:
-            paper.workflowStatus = PaperWorkflowStatus(fetch: .queued)
+            PaperTransientStateStore.shared.setWorkflowStatus(
+                PaperWorkflowStatus(fetch: .queued),
+                for: objectID
+            )
         }
-        try? viewContext.save()
     }
 
     private func resolvePaper(for objectID: NSManagedObjectID) -> Paper? {
@@ -729,6 +765,7 @@ class PaperListViewModel: ObservableObject {
         refreshInFlight.removeAll()
         refreshTaskIDs.removeAll()
         refreshModes.removeAll()
+        PaperTransientStateStore.shared.clearAll()
     }
 
     func showInFinder(_ paper: Paper) {
@@ -762,7 +799,7 @@ class PaperListViewModel: ObservableObject {
     /// Call this when EasyScholar data has been updated (e.g. from Settings).
     func refreshAllVenueRankings() {
         refreshVenueRankingsUseCase.execute { [weak self] in
-            self?.fetchPapers()
+            Task { @MainActor in await self?.fetchPapers() }
         }
     }
 
@@ -775,7 +812,7 @@ class PaperListViewModel: ObservableObject {
             try libraryCommands.updatePapers(
                 papers.map { UpdatePaperCommand(id: $0.id, flagged: flagged) }
             )
-            fetchPapers()
+            Task { await fetchPapers() }
         } catch {
             taskState.errorMessage = "Failed to update flag: " + error.localizedDescription
         }
@@ -786,7 +823,7 @@ class PaperListViewModel: ObservableObject {
             try libraryCommands.updatePapers(
                 papers.map { UpdatePaperCommand(id: $0.id, pinned: pinned) }
             )
-            fetchPapers()
+            Task { await fetchPapers() }
         } catch {
             taskState.errorMessage = "Failed to update pin: " + error.localizedDescription
         }
@@ -838,7 +875,7 @@ class PaperListViewModel: ObservableObject {
                     )
                 }
             )
-            fetchPapers()
+            Task { await fetchPapers() }
         } catch {
             taskState.errorMessage = "Batch edit failed: " + error.localizedDescription
         }

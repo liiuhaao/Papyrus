@@ -23,7 +23,7 @@ struct LibraryQueriesTests {
 
         let summaries = try queries.listPapers()
 
-        #expect(summaries.map(\.title) == ["Newer", "Older"])
+        #expect(summaries.map(\.displayTitle) == ["Newer", "Older"])
         #expect(summaries.first?.tags == ["ml", "systems"])
         #expect(summaries.first?.flagged == true)
         #expect(summaries.first?.readingStatus == Paper.ReadingStatus.reading.rawValue)
@@ -84,7 +84,7 @@ struct LibraryQueriesTests {
         )
 
         #expect(summaries.count == 1)
-        #expect(summaries.first?.title == "Graph Agents")
+        #expect(summaries.first?.displayTitle == "Graph Agents")
     }
 
     @MainActor

@@ -24,7 +24,7 @@ extension ContentView {
     }
 
     func beginDeleteSelection() {
-        if !interactions.selectedIDs.isEmpty {
+        if !selectionStore.selectedIDs.isEmpty {
             presentationState.pendingDeletePaperIDs = []
             presentationState.showingDeleteSelectedConfirm = true
         } else if let paper = currentPrimaryPaper {
@@ -107,27 +107,23 @@ extension ContentView {
     }
 
     var currentSelectedPapers: [Paper] {
-        let selectedIDs = interactions.selectedIDs
+        let selectedIDs = selectionStore.selectedIDs
         guard !selectedIDs.isEmpty else {
-            guard let primaryID = interactions.primarySelectionID,
+            guard let primaryID = selectionStore.primaryID,
                   let paper = resolvePaper(for: primaryID) else {
                 return []
             }
             return [paper]
         }
-        return viewModel.papers.filter { selectedIDs.contains($0.objectID) }
+        return selectedIDs.compactMap { resolvePaper(for: $0) }
     }
 
     var currentPrimaryPaper: Paper? {
         if let resolved = resolveCurrentPrimaryPaper() {
             return resolved
         }
-        if interactions.primarySelectionID == nil && interactions.selectedIDs.isEmpty {
+        if selectionStore.primaryID == nil && selectionStore.selectedIDs.isEmpty {
             return nil
-        }
-        if let primaryID = selectionStore.primaryID,
-           let paper = resolvePaper(for: primaryID) {
-            return paper
         }
         if let detailID = detailModel.currentPaperID,
            let paper = resolvePaper(for: detailID) {
@@ -198,7 +194,7 @@ extension ContentView {
     }
 
     private func resolveCurrentPrimaryPaper() -> Paper? {
-        guard let id = interactions.primarySelectionID else { return nil }
+        guard let id = selectionStore.primaryID else { return nil }
         return resolvePaper(for: id)
     }
 
