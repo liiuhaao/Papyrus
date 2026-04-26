@@ -54,7 +54,12 @@ struct MetadataPipeline {
             return false
         }
         switch best.matchKind {
-        case .doi, .arxiv:
+        case .doi:
+            return MetadataCompleteness.score(best.metadata) >= 0.9
+        case .arxiv:
+            if MetadataCompleteness.isPreprint(best.metadata) {
+                return false
+            }
             return MetadataCompleteness.score(best.metadata) >= 0.9
         case .exactTitle, .fuzzyTitle:
             return false
@@ -70,6 +75,9 @@ struct MetadataPipeline {
             return MetadataCompleteness.score(best.metadata) >= 0.92
         }
         if case .arxiv = best.matchKind {
+            if MetadataCompleteness.isPreprint(best.metadata) {
+                return false
+            }
             return MetadataCompleteness.score(best.metadata) >= 0.92
         }
         return MetadataCompleteness.score(best.metadata) >= 0.88

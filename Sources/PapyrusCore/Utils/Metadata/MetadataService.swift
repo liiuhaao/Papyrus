@@ -45,7 +45,9 @@ class MetadataService: MetadataProviding {
         var sources: [MetadataSource] = [
             ArxivMetadataSource(
                 fetchSemanticScholar: { try await self.fetchFromSemanticScholar(arxivId: $0) },
-                fetchArxiv: { try await self.fetchFromArxiv(arxivId: $0) }
+                fetchArxiv: { try await self.fetchFromArxiv(arxivId: $0) },
+                fetchCrossRefByDOI: { try await self.fetchFromCrossRef(doi: $0) },
+                fetchOpenAlexByDOI: { try await self.fetchFromOpenAlex(doi: $0) }
             ),
             DOIMetadataSource(
                 fetchSemanticScholar: { try await self.fetchFromSemanticScholar(doi: $0) },

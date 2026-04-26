@@ -5,41 +5,70 @@ struct ArxivMetadataSource: MetadataSource {
     let phase: MetadataSourcePhase = .direct
     let fetchSemanticScholar: @Sendable (String) async throws -> PaperMetadata
     let fetchArxiv: @Sendable (String) async throws -> PaperMetadata
+    let fetchCrossRefByDOI: @Sendable (String) async throws -> PaperMetadata
+    let fetchOpenAlexByDOI: @Sendable (String) async throws -> PaperMetadata
 
     func collectCandidates(for seed: MetadataSeed) async -> [MetadataCandidate] {
         guard let arxivId = seed.arxivId, !arxivId.isEmpty else { return [] }
-        return await withTaskGroup(of: MetadataCandidate?.self) { group in
-            group.addTask {
-                guard let metadata = try? await fetchSemanticScholar(arxivId) else { return nil }
-                return MetadataCandidate(
-                    metadata: metadata,
-                    source: "semanticScholar(arxiv)",
-                    matchKind: .arxiv,
-                    sourcePriority: 0.95,
-                    sourceConfidence: 0.95,
-                    trace: arxivId
-                )
-            }
-            group.addTask {
-                guard let metadata = try? await fetchArxiv(arxivId) else { return nil }
-                return MetadataCandidate(
-                    metadata: metadata,
-                    source: "arxiv",
-                    matchKind: .arxiv,
-                    sourcePriority: 0.92,
-                    sourceConfidence: 0.9,
-                    trace: arxivId
-                )
-            }
 
-            var candidates: [MetadataCandidate] = []
-            for await candidate in group {
-                if let candidate {
-                    candidates.append(candidate)
+        async let s2Result = try? fetchSemanticScholar(arxivId)
+        async let arxivResult = try? fetchArxiv(arxivId)
+
+        let s2Metadata = await s2Result
+        let arxivMetadata = await arxivResult
+
+        var candidates: [MetadataCandidate] = []
+
+        if let s2 = s2Metadata {
+            candidates.append(MetadataCandidate(
+                metadata: s2,
+                source: "semanticScholar(arxiv)",
+                matchKind: .arxiv,
+                sourcePriority: 0.95,
+                sourceConfidence: 0.95,
+                trace: arxivId
+            ))
+
+            // Only fetch by DOI if it's a publisher DOI, not an arXiv DOI (10.48550/...)
+            if let doi = s2.doi, !doi.lowercased().contains("10.48550") {
+                async let crossRefResult = try? fetchCrossRefByDOI(doi)
+                async let openAlexResult = try? fetchOpenAlexByDOI(doi)
+
+                if let crossRef = await crossRefResult {
+                    candidates.append(MetadataCandidate(
+                        metadata: crossRef,
+                        source: "crossref(doi)",
+                        matchKind: .doi,
+                        sourcePriority: 0.97,
+                        sourceConfidence: 0.95,
+                        trace: "arxivId=\(arxivId) doi=\(doi)"
+                    ))
+                }
+                if let openAlex = await openAlexResult {
+                    candidates.append(MetadataCandidate(
+                        metadata: openAlex,
+                        source: "openAlex(doi)",
+                        matchKind: .doi,
+                        sourcePriority: 0.94,
+                        sourceConfidence: 0.92,
+                        trace: "arxivId=\(arxivId) doi=\(doi)"
+                    ))
                 }
             }
-            return candidates
         }
+
+        if let arxiv = arxivMetadata {
+            candidates.append(MetadataCandidate(
+                metadata: arxiv,
+                source: "arxiv",
+                matchKind: .arxiv,
+                sourcePriority: 0.92,
+                sourceConfidence: 0.9,
+                trace: arxivId
+            ))
+        }
+
+        return candidates
     }
 }
 

@@ -206,7 +206,13 @@ struct MetadataResolver {
     private func apply(_ candidate: PaperMetadata, to merged: inout PaperMetadata) {
         if let title = candidate.title, !title.isEmpty { merged.title = title }
         if let authors = candidate.authors, !authors.isEmpty { merged.authors = authors }
-        if let venue = candidate.venue, !venue.isEmpty { merged.venue = venue }
+        if let venue = candidate.venue, !venue.isEmpty {
+            let candidateIsFormal = MetadataCompleteness.isFormalPublication(candidate)
+            let mergedIsFormal = MetadataCompleteness.isFormalPublication(merged)
+            if !mergedIsFormal || candidateIsFormal {
+                merged.venue = venue
+            }
+        }
         if let venueAcronym = candidate.venueAcronym, !venueAcronym.isEmpty { merged.venueAcronym = venueAcronym }
         if candidate.year > 0 { merged.year = candidate.year }
         if let doi = candidate.doi, !doi.isEmpty { merged.doi = doi }
