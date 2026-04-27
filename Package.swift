@@ -19,6 +19,9 @@ let package = Package(
                 .product(name: "Textual", package: "textual")
             ],
             path: "Sources/PapyrusCore",
+            resources: [
+                .process("Resources")
+            ],
             swiftSettings: [
                 .swiftLanguageMode(.v5)
             ]

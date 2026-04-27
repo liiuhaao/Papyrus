@@ -176,13 +176,27 @@ actor JournalRankService: RankProviding {
                 try await URLSession.shared.data(from: url)
             }
             guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let responseData = json["data"] as? [String: Any],
-                  let officialRank = responseData["officialRank"] as? [String: Any]
+                  let responseData = json["data"] as? [String: Any]
             else { return nil }
 
-            let rawSources = normalizedSources(from: officialRank)
-            guard !rawSources.isEmpty else { return nil }
-            return JournalRankInfo(sources: rawSources)
+            var mergedSources: [String: String] = [:]
+
+            if let officialRank = responseData["officialRank"] as? [String: Any] {
+                let officialSources = normalizedSources(from: officialRank)
+                for (source, value) in officialSources where !value.isEmpty {
+                    mergedSources[source] = value
+                }
+            }
+
+            if let customRank = responseData["customRank"] as? [String: Any] {
+                let customSources = normalizedCustomRank(from: customRank)
+                for (source, value) in customSources where !value.isEmpty {
+                    mergedSources[source] = value
+                }
+            }
+
+            guard !mergedSources.isEmpty else { return nil }
+            return JournalRankInfo(sources: mergedSources)
         } catch {
             return nil
         }
@@ -277,6 +291,36 @@ actor JournalRankService: RankProviding {
             }
         }
         return nil
+    }
+
+    private func normalizedCustomRank(from raw: [String: Any]) -> [String: String] {
+        guard let rankInfo = raw["rankInfo"] as? [[String: Any]],
+              let rank = raw["rank"] as? [String] else {
+            return [:]
+        }
+
+        var infoMap: [String: (name: String, ranks: [String?])] = [:]
+        for info in rankInfo {
+            guard let uuid = info["uuid"] as? String,
+                  let abbName = normalizedScalarString(info["abbName"]) else { continue }
+            let oneRank = normalizedScalarString(info["oneRankText"])
+            let twoRank = normalizedScalarString(info["twoRankText"])
+            let threeRank = normalizedScalarString(info["threeRankText"])
+            infoMap[uuid] = (name: abbName, ranks: [oneRank, twoRank, threeRank])
+        }
+
+        var result: [String: String] = [:]
+        for rankEntry in rank {
+            let parts = rankEntry.components(separatedBy: "&&&")
+            guard parts.count >= 2,
+                  let info = infoMap[parts[0]],
+                  let level = Int(parts[1]),
+                  level >= 1, level <= 3,
+                  let rankValue = info.ranks[level - 1] else { continue }
+            result[info.name] = rankValue
+        }
+
+        return result
     }
 
     private func normalizedScalarString(_ value: Any) -> String? {

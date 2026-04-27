@@ -57,6 +57,21 @@ public class Paper: NSManagedObject {
     @NSManaged public var publicationType: String?
     @NSManaged public var publicationTypeManual: Bool
     @NSManaged public var venueObject: Venue?
+
+    // MARK: Audit fields
+    @NSManaged public var seedMetadataJSON: String?
+    @NSManaged public var manualTitle: String?
+    @NSManaged public var manualAuthors: String?
+    @NSManaged public var manualVenue: String?
+    @NSManaged public var manualYear: Int16
+    @NSManaged public var manualDOI: String?
+    @NSManaged public var manualArxivId: String?
+    @NSManaged public var manualPublicationType: String?
+    @NSManaged public var fetchCandidatesJSON: String?
+    @NSManaged public var fetchSelectedSource: String?
+    @NSManaged public var fetchSelectedScore: Double
+    @NSManaged public var fetchSelectedTrace: String?
+    @NSManaged public var fetchTimestamp: Date?
 }
 
 extension Paper {
@@ -141,7 +156,8 @@ extension Paper {
         MetadataSeed(
             title: titleManual ? title : (seedTitle ?? title),
             titleCandidates: [
-                titleManual ? title : (seedTitle ?? title)
+                titleManual ? title : (seedTitle ?? title),
+                title
             ].compactMap { $0 },
             authors: authorsManual ? authors : (seedAuthors ?? authors),
             doi: doiManual ? doi : (seedDOI ?? doi),
@@ -174,14 +190,29 @@ extension Paper {
         seedPublicationType = Self.normalizedPublicationType(publicationType)
 
         if updateDisplayedFields {
-            if !titleManual { self.title = seedTitle }
-            if !authorsManual { self.authors = seedAuthors }
-            if !venueManual { self.venue = seedVenue }
-            if !yearManual { self.year = seedYear }
-            if !doiManual { self.doi = seedDOI }
-            if !arxivManual { self.arxivId = seedArxivId }
-            self.abstract = seedAbstract
-            if !publicationTypeManual { self.publicationType = seedPublicationType }
+            if !titleManual, let t = seedTitle, !t.isEmpty { self.title = t }
+            if !authorsManual, let a = seedAuthors, !a.isEmpty { self.authors = a }
+            if !venueManual, let v = seedVenue, !v.isEmpty { self.venue = v }
+            if !yearManual, seedYear > 0 { self.year = seedYear }
+            if !doiManual, let d = seedDOI, !d.isEmpty { self.doi = d }
+            if !arxivManual, let ax = seedArxivId, !ax.isEmpty { self.arxivId = ax }
+            if let ab = seedAbstract, !ab.isEmpty { self.abstract = ab }
+            if !publicationTypeManual, let pt = seedPublicationType, !pt.isEmpty { self.publicationType = pt }
+        }
+
+        // Audit: backup seed metadata as JSON
+        let snapshot = SeedMetadataSnapshot(
+            title: seedTitle,
+            authors: seedAuthors,
+            venue: seedVenue,
+            year: seedYear,
+            doi: seedDOI,
+            arxivId: seedArxivId,
+            abstract: seedAbstract,
+            publicationType: seedPublicationType
+        )
+        if let data = try? JSONEncoder().encode(snapshot) {
+            self.seedMetadataJSON = String(data: data, encoding: .utf8)
         }
     }
 
@@ -222,6 +253,15 @@ extension Paper {
             doiManual = true
             arxivManual = true
             publicationTypeManual = true
+
+            // Audit: record manual values
+            manualTitle = self.title
+            manualAuthors = self.authors
+            manualVenue = self.venue
+            manualYear = self.year
+            manualDOI = self.doi
+            manualArxivId = self.arxivId
+            manualPublicationType = self.publicationType
         } else {
             titleManual = false
             authorsManual = false
@@ -230,6 +270,16 @@ extension Paper {
             doiManual = false
             arxivManual = false
             publicationTypeManual = false
+
+            // Audit: clear manual values
+            manualTitle = nil
+            manualAuthors = nil
+            manualVenue = nil
+            manualYear = 0
+            manualDOI = nil
+            manualArxivId = nil
+            manualPublicationType = nil
+
             applySourceSeed(
                 title: title,
                 authors: authors,
@@ -268,4 +318,17 @@ extension Paper {
         guard let value, !value.isEmpty else { return nil }
         return value
     }
+}
+
+// MARK: - Audit Snapshot Types
+
+struct SeedMetadataSnapshot: Codable {
+    let title: String?
+    let authors: String?
+    let venue: String?
+    let year: Int16
+    let doi: String?
+    let arxivId: String?
+    let abstract: String?
+    let publicationType: String?
 }

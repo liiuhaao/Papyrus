@@ -1,23 +1,36 @@
 import Foundation
 
-struct MetadataCandidate: Sendable {
-    enum MatchKind: Sendable {
+package struct MetadataCandidate: Sendable, Codable {
+    package enum MatchKind: String, Sendable, Codable {
         case doi
         case arxiv
         case exactTitle
         case fuzzyTitle
     }
 
-    let metadata: PaperMetadata
-    let source: String
-    let matchKind: MatchKind
-    let sourcePriority: Double
-    let sourceConfidence: Double
-    let trace: String
+    package let metadata: PaperMetadata
+    package let source: String
+    package let matchKind: MatchKind
+    package let sourcePriority: Double
+    package let sourceConfidence: Double
+    package let trace: String
 }
 
-struct MetadataResolution: Sendable {
-    let metadata: PaperMetadata?
-    let candidates: [MetadataCandidate]
-    let trace: String
+package struct MetadataResolution: Sendable, Codable {
+    package let metadata: PaperMetadata?
+    package let candidates: [MetadataCandidate]
+    package let trace: String
+    package let selectedSource: String?
+    package let selectedScore: Double?
+}
+
+package extension MetadataCandidate {
+    var uniqueKey: String {
+        [
+            MetadataNormalization.normalizeTitle(metadata.title) ?? "",
+            MetadataNormalization.normalizedDOI(metadata.doi) ?? "",
+            metadata.arxivId?.lowercased() ?? "",
+            source
+        ].joined(separator: "|")
+    }
 }

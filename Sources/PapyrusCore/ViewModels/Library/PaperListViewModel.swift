@@ -625,6 +625,15 @@ class PaperListViewModel: ObservableObject {
         }
     }
 
+    func applyMetadataCandidate(_ paper: Paper, candidate: MetadataCandidate) async {
+        do {
+            try await libraryCommands.applyMetadataCandidate(id: paper.id, candidate: candidate)
+            await fetchPapers()
+        } catch {
+            taskState.errorMessage = "Failed to apply source: " + error.localizedDescription
+        }
+    }
+
     private func enqueueMetadataRefresh(
         _ jobs: [(objectID: NSManagedObjectID, displayName: String)],
         mode: MetadataRefreshMode,

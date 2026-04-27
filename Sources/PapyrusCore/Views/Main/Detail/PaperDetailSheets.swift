@@ -15,6 +15,7 @@ struct PaperEditorView: View {
     }
 
     @ObservedObject var paper: Paper
+    let viewModel: PaperListViewModel
     let suggestions: [String]
     let onSaved: (Paper) -> Void
     var onClose: (() -> Void)? = nil
@@ -29,6 +30,9 @@ struct PaperEditorView: View {
     @State private var arxivText: String = ""
     @State private var publicationType: String = ""
     @State private var updateMode: MetadataUpdateMode = .auto
+    @State private var showSourcePicker = false
+    @State private var selectedSourceLabel: String = "Manual"
+    @State private var selectedCandidateKey: String? = nil
     @FocusState private var focusedField: FocusField?
 
     private var namespaceChips: [String] {
@@ -133,10 +137,29 @@ struct PaperEditorView: View {
 
                     AppEditorSection("Metadata") {
                         VStack(alignment: .leading, spacing: 0) {
-                            Text("Update the core paper record.")
-                                .font(AppTypography.label)
-                                .foregroundStyle(.tertiary)
-                                .padding(.bottom, AppEditorMetrics.bodyBottomSpacing)
+                            // Source control row
+                            HStack(alignment: .center, spacing: 10) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "arrow.down.circle")
+                                        .font(.system(size: 12))
+                                        .foregroundStyle(.tertiary)
+
+                                    Text(selectedSourceLabel)
+                                        .font(AppTypography.bodySmall)
+                                        .foregroundStyle(.primary)
+                                }
+
+                                Spacer(minLength: 0)
+
+                                if paper.fetchCandidatesJSON != nil {
+                                    Button("Change Source…") { showSourcePicker = true }
+                                        .buttonStyle(.plain)
+                                        .font(AppTypography.label)
+                                        .foregroundStyle(Color.accentColor)
+                                }
+                            }
+                            .padding(.bottom, AppEditorMetrics.bodyBottomSpacing)
+
                             AppEditorFieldRow(label: "Title", labelWidth: AppEditorMetrics.fieldLabelWidth) {
                                 TextField("", text: $titleText)
                                     .textFieldStyle(.roundedBorder)
@@ -186,23 +209,23 @@ struct PaperEditorView: View {
                                     .pickerStyle(.menu)
                                 }
                             )
-                        }
-                    }
 
-                    AppEditorSection("Update Mode") {
-                        VStack(alignment: .leading, spacing: AppEditorMetrics.buttonGroupSpacing) {
-                            Picker("", selection: $updateMode) {
-                                ForEach(MetadataUpdateMode.allCases) { mode in
-                                    Text(mode.title).tag(mode)
+                            // Lock toggle
+                            HStack(spacing: 8) {
+                                Spacer()
+                                    .frame(width: AppEditorMetrics.fieldLabelWidth)
+                                Toggle(isOn: Binding(
+                                    get: { updateMode == .manual },
+                                    set: { isOn in updateMode = isOn ? .manual : .auto }
+                                )) {
+                                    Text("Lock fields from automatic updates")
+                                        .font(AppTypography.label)
+                                        .foregroundStyle(.secondary)
                                 }
+                                .toggleStyle(.checkbox)
+                                Spacer(minLength: 0)
                             }
-                            .pickerStyle(.segmented)
-
-                            Text(updateMode == .auto
-                                 ? "Fields can be overwritten by metadata refresh"
-                                 : "Fields are locked from automatic updates")
-                                .font(AppTypography.label)
-                                .foregroundStyle(.tertiary)
+                            .padding(.top, AppEditorMetrics.bodyBottomSpacing)
                         }
                     }
                 }
@@ -211,15 +234,20 @@ struct PaperEditorView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .sheet(isPresented: $showSourcePicker) {
+            MetadataSourcePickerView(
+                paper: paper,
+                selectedCandidateKey: selectedCandidateKey,
+                onSelect: { candidate in
+                    showSourcePicker = false
+                    applyCandidateToEditor(candidate)
+                },
+                onCancel: { showSourcePicker = false }
+            )
+        }
         .onAppear {
             tags = paper.tagsList
-            titleText = paper.title ?? ""
-            authorsText = paper.authors ?? ""
-            venueText = paper.venue ?? ""
-            yearText = paper.year > 0 ? "\(paper.year)" : ""
-            doiText = paper.doi ?? ""
-            arxivText = paper.arxivId ?? ""
-            publicationType = paper.publicationType ?? ""
+            reloadFieldsFromPaper()
             let anyManual = paper.titleManual || paper.authorsManual || paper.venueManual
                 || paper.yearManual || paper.doiManual || paper.arxivManual || paper.publicationTypeManual
             updateMode = anyManual ? .manual : .auto
@@ -230,6 +258,34 @@ struct PaperEditorView: View {
     private func rowDivider() -> some View {
         Divider()
             .padding(.leading, AppEditorMetrics.fieldLabelWidth + 12)
+    }
+
+    private func reloadFieldsFromPaper() {
+        titleText = paper.title ?? ""
+        authorsText = paper.authors ?? ""
+        venueText = paper.venue ?? ""
+        yearText = paper.year > 0 ? "\(paper.year)" : ""
+        doiText = paper.doi ?? ""
+        arxivText = paper.arxivId ?? ""
+        publicationType = paper.publicationType ?? ""
+        selectedSourceLabel = paper.fetchSelectedSource ?? "Manual"
+        selectedCandidateKey = resolveCurrentCandidateKey()
+    }
+
+    private func resolveCurrentCandidateKey() -> String? {
+        guard let json = paper.fetchCandidatesJSON,
+              let data = json.data(using: .utf8),
+              let candidates = try? JSONDecoder().decode([MetadataCandidate].self, from: data) else {
+            return nil
+        }
+        let currentTitle = MetadataNormalization.normalizeTitle(paper.title)
+        for candidate in candidates {
+            if candidate.source == paper.fetchSelectedSource,
+               MetadataNormalization.normalizeTitle(candidate.metadata.title) == currentTitle {
+                return candidate.uniqueKey
+            }
+        }
+        return nil
     }
 
     private func commitTagSearch() {
@@ -278,6 +334,24 @@ struct PaperEditorView: View {
         }
     }
 
+    private func applyCandidateToEditor(_ candidate: MetadataCandidate) {
+        let normalized = MetadataNormalization.normalizeMetadata(candidate.metadata)
+        let canonicalVenue = normalized.venue.map {
+            VenueFormatter.expandedFullName(forAbbreviation: $0)
+                ?? VenueFormatter.standardFullName($0)
+                ?? $0
+        }
+        titleText = normalized.title ?? ""
+        authorsText = normalized.authors ?? ""
+        venueText = canonicalVenue ?? ""
+        yearText = normalized.year > 0 ? "\(normalized.year)" : ""
+        doiText = normalized.doi ?? ""
+        arxivText = normalized.arxivId ?? ""
+        publicationType = normalized.publicationType ?? ""
+        selectedSourceLabel = candidate.source
+        selectedCandidateKey = candidate.uniqueKey
+    }
+
     private func save() {
         paper.tags = tags.isEmpty ? nil : tags.joined(separator: ", ")
         let normalizedYear = Int16(yearText.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
@@ -291,6 +365,12 @@ struct PaperEditorView: View {
             publicationType: publicationType.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty,
             isManual: updateMode == .manual
         )
+        // Update audit fields if user changed source via picker
+        if selectedSourceLabel != "Manual",
+           selectedSourceLabel != paper.fetchSelectedSource {
+            paper.fetchSelectedSource = selectedSourceLabel
+            paper.fetchTimestamp = Date()
+        }
         onSaved(paper)
         onClose?()
     }

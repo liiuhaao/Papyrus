@@ -33,6 +33,7 @@ struct InspectorHostView: View {
         if detailModel.showEditMetadata {
             PaperEditorView(
                 paper: paper,
+                viewModel: viewModel,
                 suggestions: allKnownTags,
                 onSaved: { paper in
                     viewModel.findOrCreateVenue(for: paper)

@@ -138,7 +138,8 @@ final class PaperMutationService {
         persistWorkflowStatus(PaperWorkflowStatus(fetch: .running), for: paper)
 
         onStageChange(.fetching)
-        let didEnrich = await metadataProvider.enrichMetadata(paper: paper)
+        let resolution = await metadataProvider.enrichMetadata(paper: paper)
+        let didEnrich = resolution.metadata != nil
 
         onStageChange(.saving)
         if let newURL = try? fileStorage.renameFile(for: paper) {
@@ -151,6 +152,25 @@ final class PaperMutationService {
         Task { @MainActor [self] in
             await refreshVenueDataIfNeeded(for: paperID, forceRefresh: forceVenueRefresh)
         }
+    }
+
+    func applyMetadataCandidate(for paper: Paper, candidate: MetadataCandidate) async {
+        let existingCandidates: [MetadataCandidate]
+        if let json = paper.fetchCandidatesJSON,
+           let data = json.data(using: .utf8) {
+            existingCandidates = (try? JSONDecoder().decode([MetadataCandidate].self, from: data)) ?? []
+        } else {
+            existingCandidates = []
+        }
+        MetadataUpdatePolicy.apply(
+            metadata: candidate.metadata,
+            from: candidate.source,
+            score: nil,
+            candidates: existingCandidates,
+            trace: "manual=\(candidate.source)",
+            to: paper
+        )
+        syncVenueRelationship(for: paper)
     }
 
     func reextractSourceSeed(for paper: Paper) async throws -> PDFSeed {

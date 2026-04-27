@@ -86,6 +86,7 @@ package struct LibraryCommands {
     private let refreshPaperMetadataUseCase: RefreshPaperMetadataUseCase
     private let fetchPaperMetadataUseCase: FetchPaperMetadataUseCase
     private let reextractPaperSeedUseCase: ReextractPaperSeedUseCase
+    private let applyMetadataCandidateUseCase: ApplyMetadataCandidateUseCase
     private let applyBatchEditUseCase: ApplyBatchEditUseCase
     private let setFlagStateUseCase: SetFlagStateUseCase
     private let setPinnedStateUseCase: SetPinnedStateUseCase
@@ -98,6 +99,7 @@ package struct LibraryCommands {
         refreshPaperMetadataUseCase: RefreshPaperMetadataUseCase,
         fetchPaperMetadataUseCase: FetchPaperMetadataUseCase,
         reextractPaperSeedUseCase: ReextractPaperSeedUseCase,
+        applyMetadataCandidateUseCase: ApplyMetadataCandidateUseCase,
         applyBatchEditUseCase: ApplyBatchEditUseCase,
         setFlagStateUseCase: SetFlagStateUseCase,
         setPinnedStateUseCase: SetPinnedStateUseCase,
@@ -109,6 +111,7 @@ package struct LibraryCommands {
         self.refreshPaperMetadataUseCase = refreshPaperMetadataUseCase
         self.fetchPaperMetadataUseCase = fetchPaperMetadataUseCase
         self.reextractPaperSeedUseCase = reextractPaperSeedUseCase
+        self.applyMetadataCandidateUseCase = applyMetadataCandidateUseCase
         self.applyBatchEditUseCase = applyBatchEditUseCase
         self.setFlagStateUseCase = setFlagStateUseCase
         self.setPinnedStateUseCase = setPinnedStateUseCase
@@ -273,6 +276,11 @@ package struct LibraryCommands {
             onStageChange: onStageChange
         )
         return try getPaper(id: id)
+    }
+
+    package func applyMetadataCandidate(id: UUID, candidate: MetadataCandidate) async throws {
+        let paper = try resolvePaper(id: id)
+        await applyMetadataCandidateUseCase.execute(for: paper, candidate: candidate)
     }
 
     @discardableResult

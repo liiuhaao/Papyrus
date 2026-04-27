@@ -59,6 +59,7 @@ final class AppContainer {
                 refreshPaperMetadataUseCase: RefreshPaperMetadataUseCase(mutationService: mutationService),
                 fetchPaperMetadataUseCase: FetchPaperMetadataUseCase(mutationService: mutationService),
                 reextractPaperSeedUseCase: ReextractPaperSeedUseCase(mutationService: mutationService),
+                applyMetadataCandidateUseCase: ApplyMetadataCandidateUseCase(mutationService: mutationService),
                 applyBatchEditUseCase: ApplyBatchEditUseCase(mutationService: mutationService),
                 setFlagStateUseCase: SetFlagStateUseCase(viewContext: viewContext),
                 setPinnedStateUseCase: SetPinnedStateUseCase(viewContext: viewContext),

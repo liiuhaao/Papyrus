@@ -101,6 +101,21 @@ package struct PersistenceController {
             attr("publicationTypeManual", .booleanAttributeType,   optional: false, default: false),
             attr("notes",                 .stringAttributeType),
             attr("enrichStatus",          .stringAttributeType, transient: true),
+
+            // MARK: Audit fields
+            attr("seedMetadataJSON",        .stringAttributeType),
+            attr("manualTitle",             .stringAttributeType),
+            attr("manualAuthors",           .stringAttributeType),
+            attr("manualVenue",             .stringAttributeType),
+            attr("manualYear",              .integer16AttributeType, optional: false, default: 0),
+            attr("manualDOI",               .stringAttributeType),
+            attr("manualArxivId",           .stringAttributeType),
+            attr("manualPublicationType",   .stringAttributeType),
+            attr("fetchCandidatesJSON",     .stringAttributeType),
+            attr("fetchSelectedSource",     .stringAttributeType),
+            attr("fetchSelectedScore",      .doubleAttributeType,    optional: false, default: 0),
+            attr("fetchSelectedTrace",      .stringAttributeType),
+            attr("fetchTimestamp",          .dateAttributeType),
         ]
 
         // MARK: Venue entity

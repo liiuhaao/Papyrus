@@ -60,6 +60,19 @@ final class FetchPaperMetadataUseCase {
 }
 
 @MainActor
+final class ApplyMetadataCandidateUseCase {
+    private let mutationService: PaperMutationService
+
+    init(mutationService: PaperMutationService) {
+        self.mutationService = mutationService
+    }
+
+    func execute(for paper: Paper, candidate: MetadataCandidate) async {
+        await mutationService.applyMetadataCandidate(for: paper, candidate: candidate)
+    }
+}
+
+@MainActor
 final class ReextractPaperSeedUseCase {
     private let mutationService: PaperMutationService
 

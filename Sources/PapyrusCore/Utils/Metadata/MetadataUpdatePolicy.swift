@@ -2,52 +2,72 @@ import Foundation
 
 enum MetadataUpdatePolicy {
     @MainActor
-    static func apply(_ metadata: PaperMetadata, to paper: Paper) {
+    static func apply(_ resolution: MetadataResolution, to paper: Paper) {
+        // 1. 写入审计字段（无论成功与否）
+        if let data = try? JSONEncoder().encode(resolution.candidates),
+           let json = String(data: data, encoding: .utf8) {
+            paper.fetchCandidatesJSON = json
+        } else {
+            paper.fetchCandidatesJSON = nil
+        }
+        paper.fetchSelectedSource = resolution.selectedSource
+        paper.fetchSelectedScore = resolution.selectedScore ?? 0
+        paper.fetchSelectedTrace = resolution.trace
+        paper.fetchTimestamp = Date()
+
+        // 2. 更新 resolved / display 字段（仅当成功获取到 metadata 时）
+        guard let metadata = resolution.metadata else { return }
+        apply(
+            metadata: metadata,
+            from: resolution.selectedSource ?? "",
+            score: resolution.selectedScore,
+            candidates: resolution.candidates,
+            trace: resolution.trace,
+            to: paper
+        )
+    }
+
+    @MainActor
+    static func apply(
+        metadata: PaperMetadata,
+        from source: String,
+        score: Double?,
+        candidates: [MetadataCandidate],
+        trace: String? = nil,
+        to paper: Paper
+    ) {
+        if let data = try? JSONEncoder().encode(candidates),
+           let json = String(data: data, encoding: .utf8) {
+            paper.fetchCandidatesJSON = json
+        } else {
+            paper.fetchCandidatesJSON = nil
+        }
+        paper.fetchSelectedSource = source
+        paper.fetchSelectedScore = score ?? 0
+        paper.fetchSelectedTrace = trace ?? "manual=\(source)"
+        paper.fetchTimestamp = Date()
+
+        print("[UpdatePolicy] incoming venue=\(metadata.venue ?? "nil") venueManual=\(paper.venueManual)")
         let normalized = MetadataNormalization.normalizeMetadata(metadata)
 
-        if let title = normalized.title {
-            paper.resolvedTitle = title
-            if !paper.titleManual {
-                paper.title = title
-            }
+        let canonicalVenue = normalized.venue.map {
+            VenueFormatter.expandedFullName(forAbbreviation: $0)
+                ?? VenueFormatter.standardFullName($0)
+                ?? $0
         }
-        if let authors = normalized.authors {
-            paper.resolvedAuthors = authors
-            if !paper.authorsManual {
-                paper.authors = authors
-            }
+        if let canonical = canonicalVenue {
+            print("[UpdatePolicy] writing venue=\(canonical) venueManual=\(paper.venueManual)")
         }
-        if let venue = normalized.venue {
-            paper.resolvedVenue = venue
-            if !paper.venueManual {
-                paper.venue = venue
-            }
-            if let acronym = normalized.venueAcronym {
-                Task { await VenueAbbreviationService.shared.store(venue: venue, acronym: acronym) }
-            }
-        }
-        if normalized.year > 0 {
-            paper.resolvedYear = normalized.year
-            if !paper.yearManual {
-                paper.year = normalized.year
-            }
-        }
-        if let abstract = normalized.abstract {
-            paper.resolvedAbstract = abstract
-            paper.abstract = abstract
-        }
-        if let doi = normalized.doi {
-            paper.resolvedDOI = doi
-            if !paper.doiManual {
-                paper.doi = doi
-            }
-        }
-        if let arxivID = normalized.arxivId {
-            paper.resolvedArxivId = arxivID
-            if !paper.arxivManual {
-                paper.arxivId = arxivID
-            }
-        }
+
+        // MARK: Resolved 层 — 始终覆盖（包括 nil，反映最后一次 fetch 的真实结果）
+        paper.resolvedTitle = normalized.title
+        paper.resolvedAuthors = normalized.authors
+        paper.resolvedVenue = canonicalVenue
+        paper.resolvedYear = normalized.year
+        paper.resolvedAbstract = normalized.abstract
+        paper.resolvedDOI = normalized.doi
+        paper.resolvedArxivId = normalized.arxivId
+        paper.resolvedCitationCount = normalized.citationCount ?? -1
 
         let inferredType = normalized.publicationType
             ?? MetadataParsers.inferPublicationType(
@@ -55,15 +75,37 @@ enum MetadataUpdatePolicy {
                 doi: paper.doi,
                 arxivId: paper.arxivId
             )
-        if let inferredType {
-            paper.resolvedPublicationType = inferredType
-            if !paper.publicationTypeManual {
-                paper.publicationType = inferredType
-            }
+        paper.resolvedPublicationType = inferredType
+
+        // MARK: Display 层 — 非 manual 时跟随 resolved（包括 nil）
+        if !paper.titleManual {
+            paper.title = paper.resolvedTitle
         }
-        if let citationCount = normalized.citationCount {
-            paper.resolvedCitationCount = citationCount
-            paper.citationCount = citationCount
+        if !paper.authorsManual {
+            paper.authors = paper.resolvedAuthors
+        }
+        if !paper.venueManual {
+            paper.venue = paper.resolvedVenue
+        } else {
+            print("[UpdatePolicy] SKIPPED because venueManual=true")
+        }
+        if !paper.yearManual {
+            paper.year = paper.resolvedYear
+        }
+        paper.abstract = paper.resolvedAbstract
+        if !paper.doiManual {
+            paper.doi = paper.resolvedDOI
+        }
+        if !paper.arxivManual {
+            paper.arxivId = paper.resolvedArxivId
+        }
+        if !paper.publicationTypeManual {
+            paper.publicationType = paper.resolvedPublicationType
+        }
+        paper.citationCount = paper.resolvedCitationCount
+
+        if let canonical = canonicalVenue, let acronym = normalized.venueAcronym {
+            Task { await VenueAbbreviationService.shared.store(venue: canonical, acronym: acronym) }
         }
 
         paper.dateModified = Date()

@@ -80,6 +80,7 @@ class MetadataService: MetadataProviding {
 
     private func fullFuzzySourcesForGeneral() -> [MetadataSource] {
         [
+            titleSource(name: "dblp", priority: 0.94, search: { try await self.searchDBLP(title: $0) }),
             titleSource(name: "semanticScholar", priority: 0.87, search: { try await self.searchSemanticScholar(title: $0) }),
             titleSource(name: "openAlex", priority: 0.85, search: { try await self.searchOpenAlex(title: $0) }),
             titleSource(name: "crossref", priority: 0.83, search: { try await self.searchCrossRef(title: $0) })
@@ -162,7 +163,12 @@ class MetadataService: MetadataProviding {
     // MARK: - DBLP
 
     func searchDBLP(title: String) async throws -> [PaperMetadata] {
-        try await dblpClient.searchPublications(title: title).map(MetadataParsers.parseDBLPHit)
+        let results = try await dblpClient.searchPublications(title: title).map(MetadataParsers.parseDBLPHit)
+        print("[DBLP search] query='\(title)' results=\(results.count)")
+        for (i, r) in results.enumerated() {
+            print("  [\(i)] title='\(r.title ?? "nil")' venue='\(r.venue ?? "nil")'")
+        }
+        return results
     }
     
     // MARK: - OpenReview
@@ -211,7 +217,7 @@ class MetadataService: MetadataProviding {
     }
 
     @MainActor
-    func enrichMetadata(paper: Paper) async -> Bool {
+    func enrichMetadata(paper: Paper) async -> MetadataResolution {
         let filename = paper.originalFilename ?? paper.displayTitle
         print("[Enrich] \(filename) arXiv=\(paper.arxivId ?? "-") doi=\(paper.doi ?? "-")")
         let preset = AppConfig.shared.metadataPreset
@@ -223,12 +229,20 @@ class MetadataService: MetadataProviding {
             }
         ) else {
             print("[Enrich] Pipeline timed out after \(Int(pipelineTimeoutSeconds))s")
-            return false
+            let timeoutResolution = MetadataResolution(
+                metadata: nil,
+                candidates: [],
+                trace: "timeout",
+                selectedSource: nil,
+                selectedScore: nil
+            )
+            MetadataUpdatePolicy.apply(timeoutResolution, to: paper)
+            return timeoutResolution
         }
         if let metadata = resolution.metadata {
-            print("[Enrich] Pipeline succeeded: \(resolution.trace)")
-            MetadataUpdatePolicy.apply(metadata, to: paper)
-            return true
+            print("[Enrich] Pipeline succeeded: \(resolution.trace) venue=\(metadata.venue ?? "nil")")
+            MetadataUpdatePolicy.apply(resolution, to: paper)
+            return resolution
         } else {
             print("[Enrich] Pipeline failed: \(resolution.trace)")
             if let arxivId = seed.arxivId?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -241,13 +255,29 @@ class MetadataService: MetadataProviding {
                 let fallbackIsPreprint = MetadataCompleteness.isPreprint(fallback)
                 if currentVenueIsFormal && fallbackIsPreprint {
                     print("[Enrich] Skipping arXiv fallback: paper already has formal venue")
-                    return false
+                    MetadataUpdatePolicy.apply(resolution, to: paper)
+                    return resolution
                 }
                 print("[Enrich] Fallback arXiv succeeded for \(arxivId)")
-                MetadataUpdatePolicy.apply(fallback, to: paper)
-                return true
+                let fallbackResolution = MetadataResolution(
+                    metadata: fallback,
+                    candidates: [MetadataCandidate(
+                        metadata: fallback,
+                        source: "arxiv(fallback)",
+                        matchKind: .arxiv,
+                        sourcePriority: 0.9,
+                        sourceConfidence: 0.9,
+                        trace: arxivId
+                    )],
+                    trace: "arxiv-fallback=\(arxivId)",
+                    selectedSource: "arxiv(fallback)",
+                    selectedScore: nil
+                )
+                MetadataUpdatePolicy.apply(fallbackResolution, to: paper)
+                return fallbackResolution
             }
-            return false
+            MetadataUpdatePolicy.apply(resolution, to: paper)
+            return resolution
         }
     }
 
@@ -308,17 +338,17 @@ class MetadataService: MetadataProviding {
 
 // MARK: - Supporting Types
 
-struct PaperMetadata: Sendable {
-    var title: String?
-    var authors: String?
-    var venue: String?
-    var venueAcronym: String?
-    var year: Int16 = 0
-    var doi: String?
-    var arxivId: String?
-    var abstract: String?
-    var publicationType: String?
-    var citationCount: Int32?
+package struct PaperMetadata: Sendable, Codable {
+    package var title: String?
+    package var authors: String?
+    package var venue: String?
+    package var venueAcronym: String?
+    package var year: Int16 = 0
+    package var doi: String?
+    package var arxivId: String?
+    package var abstract: String?
+    package var publicationType: String?
+    package var citationCount: Int32?
 }
 
 struct PaperReference: Codable, Identifiable {

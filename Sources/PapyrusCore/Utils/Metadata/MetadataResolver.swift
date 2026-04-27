@@ -10,18 +10,20 @@ struct MetadataResolver {
     func resolve(seed: MetadataSeed, candidates: [MetadataCandidate]) -> MetadataResolution {
         let ranked = rank(seed: seed, candidates: candidates)
         guard let best = ranked.first else {
-            return MetadataResolution(metadata: nil, candidates: [], trace: "no-candidates")
+            return MetadataResolution(metadata: nil, candidates: [], trace: "no-candidates", selectedSource: nil, selectedScore: nil)
         }
 
         let acceptedScore = score(seed: seed, candidate: best)
         guard acceptedScore >= acceptanceThreshold(for: best),
               passesTitleEvidenceGuard(seed: seed, candidate: best) else {
-            return MetadataResolution(metadata: nil, candidates: ranked, trace: "best-score=\(acceptedScore)")
+            return MetadataResolution(metadata: nil, candidates: ranked, trace: "best-score=\(acceptedScore)", selectedSource: best.source, selectedScore: acceptedScore)
         }
 
         let merged = merge(seed: seed, ranked: ranked)
-        return MetadataResolution(metadata: merged, candidates: ranked, trace: "accepted=\(best.source) score=\(acceptedScore)")
+        return MetadataResolution(metadata: merged, candidates: ranked, trace: "accepted=\(best.source) score=\(acceptedScore)", selectedSource: best.source, selectedScore: acceptedScore)
     }
+
+    // MARK: - Ranking
 
     private func rank(seed: MetadataSeed, candidates: [MetadataCandidate]) -> [MetadataCandidate] {
         var seen = Set<String>()
@@ -42,6 +44,8 @@ struct MetadataResolver {
             return lhs.sourcePriority > rhs.sourcePriority
         }
     }
+
+    // MARK: - Scoring
 
     private func score(seed: MetadataSeed, candidate: MetadataCandidate) -> Double {
         var total = candidate.sourcePriority + candidate.sourceConfidence
@@ -77,16 +81,20 @@ struct MetadataResolver {
             }
         }
 
-        if candidate.metadata.doi?.isEmpty == false { total += 0.1 }
+        if candidate.metadata.doi?.isEmpty == false { total += 0.08 } else { total -= 0.1 }
         if candidate.metadata.arxivId?.isEmpty == false { total += 0.05 }
-        if candidate.metadata.venue?.isEmpty == false { total += 0.04 }
+        if candidate.metadata.venue?.isEmpty == false {
+            total += 0.18
+        } else {
+            total -= 0.3
+        }
         if candidate.metadata.abstract?.isEmpty == false { total += 0.02 }
 
         if MetadataCompleteness.isFormalPublication(candidate.metadata) { total += 0.08 }
         if MetadataCompleteness.isPreprint(candidate.metadata) { total -= 0.02 }
 
         if case .doi = candidate.matchKind { total += 0.2 }
-        if case .arxiv = candidate.matchKind { total += 0.2 }
+        if case .arxiv = candidate.matchKind { total += 0.3 }
         if case .exactTitle = candidate.matchKind { total += 0.08 }
 
         total += presetSpecificBonus(seed: seed, candidate: candidate)
@@ -145,64 +153,74 @@ struct MetadataResolver {
             || (coverage >= 0.7 && bigram >= 0.5 && anchoredCoverage >= 0.5)
     }
 
+    // MARK: - Merge (source-atomic selection)
+
     private func merge(seed: MetadataSeed, ranked: [MetadataCandidate]) -> PaperMetadata {
-        var merged = PaperMetadata()
-        merged.title = seed.title
-        merged.authors = seed.authors
-        merged.venue = seed.venue
-        merged.year = seed.year
-        merged.doi = seed.doi
-        merged.arxivId = seed.arxivId
-        merged.abstract = seed.abstract
+        // Partition into formal and informal candidates.
+        let formal = ranked.filter { isReliableFormal($0, seed: seed) }
+        let informal = ranked.filter { !isReliableFormal($0, seed: seed) }
 
-        for candidate in ranked.reversed() {
-            apply(candidate.metadata, to: &merged)
+        // Pick the best candidate: formal first, then informal.
+        let chosen: MetadataCandidate?
+        if let bestFormal = formal.first {
+            chosen = bestFormal
+        } else if let bestInformal = informal.first {
+            chosen = bestInformal
+        } else {
+            chosen = nil
         }
 
-        // When the PDF seed identifies a formal publication (conference/journal)
-        // but online sources returned an arXiv/preprint record, preserve the seed's
-        // venue and year instead of overwriting with the preprint source.
-        if let seedVenue = seed.venue,
-           let seedType = MetadataParsers.inferPublicationType(venue: seedVenue, doi: nil, arxivId: nil),
-           seedType == "conference" || seedType == "journal" {
-            let mergedType = MetadataParsers.inferPublicationType(venue: merged.venue, doi: merged.doi, arxivId: merged.arxivId)
-            if mergedType == "preprint" || mergedType == nil || merged.venue == nil {
-                merged.venue = seedVenue
-            }
-            if seed.year > 0 {
-                merged.year = seed.year
-            }
+        var result = PaperMetadata()
+        if let candidate = chosen {
+            // Use the chosen candidate atomically; fall back to seed for missing fields.
+            result.title = candidate.metadata.title ?? seed.title
+            result.authors = candidate.metadata.authors ?? seed.authors
+            result.venue = candidate.metadata.venue
+            result.year = candidate.metadata.year > 0 ? candidate.metadata.year : seed.year
+            result.doi = candidate.metadata.doi ?? seed.doi
+            result.arxivId = candidate.metadata.arxivId ?? seed.arxivId
+            result.abstract = candidate.metadata.abstract ?? seed.abstract
+            result.venueAcronym = candidate.metadata.venueAcronym
+            result.citationCount = candidate.metadata.citationCount
+        } else {
+            // No usable candidate at all — fall back to the PDF seed.
+            result.title = seed.title
+            result.authors = seed.authors
+            result.venue = seed.venue
+            result.year = seed.year
+            result.doi = seed.doi
+            result.arxivId = seed.arxivId
+            result.abstract = seed.abstract
         }
 
-        if merged.publicationType == nil {
-            merged.publicationType = MetadataParsers.inferPublicationType(
-                venue: merged.venue,
-                doi: merged.doi,
-                arxivId: merged.arxivId
-            )
-        }
+        result.publicationType = MetadataParsers.inferPublicationType(
+            venue: result.venue,
+            doi: result.doi,
+            arxivId: result.arxivId
+        )
 
-        return merged
+        return result
     }
 
-    private func apply(_ candidate: PaperMetadata, to merged: inout PaperMetadata) {
-        if let title = candidate.title, !title.isEmpty { merged.title = title }
-        if let authors = candidate.authors, !authors.isEmpty { merged.authors = authors }
-        if let venue = candidate.venue, !venue.isEmpty {
-            let candidateIsFormal = MetadataCompleteness.isFormalPublication(candidate)
-            let mergedIsFormal = MetadataCompleteness.isFormalPublication(merged)
-            if !mergedIsFormal || candidateIsFormal {
-                merged.venue = venue
-            }
-        }
-        if let venueAcronym = candidate.venueAcronym, !venueAcronym.isEmpty { merged.venueAcronym = venueAcronym }
-        if candidate.year > 0 { merged.year = candidate.year }
-        if let doi = candidate.doi, !doi.isEmpty { merged.doi = doi }
-        if let arxivId = candidate.arxivId, !arxivId.isEmpty { merged.arxivId = arxivId }
-        if let abstract = candidate.abstract, !abstract.isEmpty { merged.abstract = abstract }
-        if let publicationType = candidate.publicationType, !publicationType.isEmpty { merged.publicationType = publicationType }
-        if let citationCount = candidate.citationCount { merged.citationCount = citationCount }
+    /// A candidate is considered a reliable formal publication if:
+    /// - It has a venue that is a conference or journal (not a preprint)
+    /// - Its title matches the seed well enough to be trusted
+    private func isReliableFormal(_ candidate: MetadataCandidate, seed: MetadataSeed) -> Bool {
+        guard let venue = candidate.metadata.venue, !venue.isEmpty else { return false }
+        let type = MetadataParsers.inferPublicationType(
+            venue: venue,
+            doi: candidate.metadata.doi,
+            arxivId: candidate.metadata.arxivId
+        )
+        guard type == "conference" || type == "journal" else { return false }
+
+        let similarity = seed.searchTitles
+            .map { MetadataNormalization.titleSimilarity($0, candidate.metadata.title) }
+            .max() ?? 0
+        return similarity >= 0.7
     }
+
+    // MARK: - Bonuses & helpers
 
     private func sourceContextBonus(seed: MetadataSeed, candidate: MetadataCandidate) -> Double {
         var bonus = 0.0
@@ -210,9 +228,9 @@ struct MetadataResolver {
         let source = candidate.source.lowercased()
         let seedWantsFormal = wantsFormalPublication(seed)
         if seedWantsFormal {
-            if source.contains("dblp") { bonus += 0.12 }
-            if source.contains("crossref") { bonus += 0.05 }
-            if source.contains("openalex") { bonus += 0.04 }
+            if source.contains("dblp"), MetadataCompleteness.isFormalPublication(candidate.metadata) { bonus += 0.12 }
+            if source.contains("crossref"), MetadataCompleteness.isFormalPublication(candidate.metadata) { bonus += 0.05 }
+            if source.contains("openalex"), MetadataCompleteness.isFormalPublication(candidate.metadata) { bonus += 0.04 }
             if MetadataCompleteness.isFormalPublication(candidate.metadata) { bonus += 0.08 }
             if MetadataCompleteness.isPreprint(candidate.metadata) { bonus -= 0.08 }
         }
@@ -233,10 +251,11 @@ struct MetadataResolver {
             return 0
         case .cs:
             var bonus = 0.0
-            if source.contains("dblp") { bonus += 0.12 }
+            if source.contains("dblp"), MetadataCompleteness.isFormalPublication(candidate.metadata) { bonus += 0.12 }
             if source.contains("openreview") { bonus += 0.08 }
             if source.contains("crossref") { bonus -= 0.02 }
             if MetadataCompleteness.isFormalPublication(candidate.metadata) { bonus += 0.04 }
+            if source.contains("semanticscholar"), candidate.metadata.venue?.isEmpty == false { bonus += 0.10 }
             return bonus
         case .physics:
             var bonus = 0.0

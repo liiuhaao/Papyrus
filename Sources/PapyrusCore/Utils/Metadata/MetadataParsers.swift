@@ -178,6 +178,10 @@ enum MetadataParsers {
         if let url = json["url"] as? String {
             metadata.arxivId = extractArxivID(from: url)
         }
+        // DBLP CoRR records often store the arXiv link in the 'ee' field.
+        if metadata.arxivId == nil, let ee = json["ee"] as? String {
+            metadata.arxivId = extractArxivID(from: ee)
+        }
         metadata.publicationType = inferPublicationType(
             venue: metadata.venue,
             doi: metadata.doi,
@@ -299,7 +303,9 @@ enum MetadataParsers {
         let venueText = (venue ?? "").lowercased()
         let conferenceHints = ["conference", "symposium", "workshop", "proceedings", "neurips", "iclr", "icml", "cvpr", "iccv", "eccv", "acl", "emnlp", "naacl", "aaai", "ijcai"]
         let journalHints = ["journal", "transactions", "trans.", "letters", "review", "nature", "science", "communications"]
+        let preprintHints = ["corr", "arxiv", "biorxiv", "medrxiv", "ssrn", "hal ", "preprint", "chemrxiv", "eartharxiv", "psyarxiv", "socarxiv"]
 
+        if preprintHints.contains(where: { venueText.contains($0) }) { return "preprint" }
         if conferenceHints.contains(where: { venueText.contains($0) }) { return "conference" }
         if journalHints.contains(where: { venueText.contains($0) }) { return "journal" }
         if venueText.isEmpty, let doi, !doi.isEmpty { return "journal" }

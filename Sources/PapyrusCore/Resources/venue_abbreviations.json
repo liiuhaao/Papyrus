@@ -1,0 +1,2926 @@
+[
+  [
+    "international symposium theory, algorithmic foundations, protocol design for mobile networks mobile computing",
+    "MOBIHOC"
+  ],
+  [
+    "acm international conference applications, technologies, architectures, protocols for computer communication",
+    "SIGCOMM"
+  ],
+  [
+    "european conference on machine learning and 25th principles and practice of knowledge discovery in databases",
+    "ECML-PKDD"
+  ],
+  [
+    "international conference human-computer interaction international federation for information processing",
+    "INTERACT"
+  ],
+  [
+    "the annual conference of the north american chapter of the association for computational linguistics",
+    "NAACL"
+  ],
+  [
+    "european symposium on artificial neural networks, computational intelligence and machine learning",
+    "ESANN"
+  ],
+  [
+    "\"international conference on collaborative computing: networking, applications and worksharing\"",
+    "CollaborateCom"
+  ],
+  [
+    "international conference automated deduction/international joint conference automated reasoning",
+    "INTERNATIONALCONFERENCEONAUTOMATEDDEDUCTION/INTERNATIONALJOINTCONFERENCEONAUTOMATEDREASONING"
+  ],
+  [
+    "the annual conference of the european chapter of the association for computational linguistics",
+    "EACL"
+  ],
+  [
+    "acm joint european software engineering conference symposium foundations software engineering",
+    "FSE/ESEC"
+  ],
+  [
+    "international conference on parallel and distributed computing, applications and technologies",
+    "PDCAT"
+  ],
+  [
+    "international conference on the theory and application of cryptology and information security",
+    "ASIACRYPT"
+  ],
+  [
+    "ieee international conference on application-specific systems, architectures, and processors",
+    "ASAP"
+  ],
+  [
+    "ieee international conference on trust, security and privacy in computing and communications",
+    "TrustCom"
+  ],
+  [
+    "international conference on modeling, analysis and simulation of wireless and mobile systems",
+    "MSWiM"
+  ],
+  [
+    "acm sigplan/sigbed international conference languages, compilers tools for embedded systems",
+    "LCTES"
+  ],
+  [
+    "international conference architectural support for programming languages operating systems",
+    "ASPLOS"
+  ],
+  [
+    "international conference for high performance computing, networking, storage, and analysis",
+    "SC"
+  ],
+  [
+    "international workshop on network and operating system support for digital audio and video",
+    "NOSSDAV"
+  ],
+  [
+    "european conference machine learning principles practice knowledge discovery in databases",
+    "ECML-PKDD"
+  ],
+  [
+    "international symposium modeling, analysis, simulation computer telecommunication systems",
+    "MASCOTS"
+  ],
+  [
+    "international conference formal techniques for distributed objects, components, systems",
+    "FORTE"
+  ],
+  [
+    "international conference collaborative computing: networking, applications worksharing",
+    "COLLABORATECOM"
+  ],
+  [
+    "international conference for high performance computing, networking, storage, analysis",
+    "SC"
+  ],
+  [
+    "international conference on medical image computing and computer assisted intervention",
+    "MICCAI"
+  ],
+  [
+    "international symposium dependable software engineering: theories, tools, applications",
+    "SETTA"
+  ],
+  [
+    "acm sigspatial international conference on advances in geographic information systems",
+    "SIGSPATIAL"
+  ],
+  [
+    "ieee international conference application-specific systems, architectures, processors",
+    "ASAP"
+  ],
+  [
+    "ieee international symposium on parallel and distributed processing with applications",
+    "ISPA"
+  ],
+  [
+    "international conference on formal techniques for (networked and) distributed systems",
+    "FORTE"
+  ],
+  [
+    "international conference on verification, model checking, and abstract interpretation",
+    "VMCAI"
+  ],
+  [
+    "ieee international symposium on a world of wireless, mobile and multimedia networks",
+    "WoWMoM"
+  ],
+  [
+    "annual international conference theory application cryptology information security",
+    "ASIACRYPT"
+  ],
+  [
+    "international conference mobile ubiquitous systems: computing, networking services",
+    "MOBIQUITOUS"
+  ],
+  [
+    "ccf international conference on natural language processing and chinese computing",
+    "NLPCC"
+  ],
+  [
+    "ieee international conference trust, security privacy in computing communications",
+    "TRUSTCOM"
+  ],
+  [
+    "international conference compilers, architectures, synthesis for embedded systems",
+    "CASES"
+  ],
+  [
+    "'symposium on dependable software engineering: theories, tools and applications'",
+    "SETTA"
+  ],
+  [
+    "international acm sigir conference research development in information retrieval",
+    "SIGIR"
+  ],
+  [
+    "international conference on algorithms and architectures for parallel processing",
+    "ICA3PP"
+  ],
+  [
+    "international conference on principles of knowledge representation and reasoning",
+    "KR"
+  ],
+  [
+    "ieee international conference on software analysis, evolution and reengineering",
+    "SANER"
+  ],
+  [
+    "international conference medical image computing computer-assisted intervention",
+    "MICCAI"
+  ],
+  [
+    "international conference on languages, compilers and tools for embedded systems",
+    "LCTES"
+  ],
+  [
+    "international symposium computer performance, modeling, measurements evaluation",
+    "PERFORMANCE"
+  ],
+  [
+    "international workshop network operating system support for digital audio video",
+    "NOSSDAV"
+  ],
+  [
+    "acm/ieee international conference on information processing in sensor networks",
+    "IPSN"
+  ],
+  [
+    "conference on object-oriented programming systems, languages, and applications",
+    "OOPSLA"
+  ],
+  [
+    "ieee international conference on high performance computing and communications",
+    "HPCC"
+  ],
+  [
+    "ieee international symposium parallel distributed processing with applications",
+    "ISPA"
+  ],
+  [
+    "ieee international working conference on source code analysis and manipulation",
+    "SCAM"
+  ],
+  [
+    "international conference modeling, analysis simulation wireless mobile systems",
+    "MSWIM"
+  ],
+  [
+    "pacific graphics, the pacific conference on computer graphics and applications",
+    "PG"
+  ],
+  [
+    "international conference on evaluation and assessment in software engineering",
+    "EASE"
+  ],
+  [
+    "international conference on parallel architectures and compilation techniques",
+    "PACT"
+  ],
+  [
+    "international conference on principles and practice of constraint programming",
+    "CP"
+  ],
+  [
+    "international conference on theory and applications of satisfiability testing",
+    "SAT"
+  ],
+  [
+    "international conference verification, model checking abstract interpretation",
+    "VMCAI"
+  ],
+  [
+    "international symposium on automated technology for verification and analysis",
+    "ATVA"
+  ],
+  [
+    "acm sigplan-sigsoft workshop program analysis for software tools engineering",
+    "PASTE"
+  ],
+  [
+    "acm/ieee international conference model driven engineering languages systems",
+    "MODELS"
+  ],
+  [
+    "international conference on emerging networking experiments and technologies",
+    "CoNEXT"
+  ],
+  [
+    "international conference on research on development in information retrieval",
+    "SIGIR"
+  ],
+  [
+    "annual international conference research in computational molecular biology",
+    "RECOMB"
+  ],
+  [
+    "ieee international conference on software quality, reliability and security",
+    "QRS"
+  ],
+  [
+    "international acm symposium high-performance parallel distributed computing",
+    "HPDC"
+  ],
+  [
+    "acm conference on computer supported cooperative work and social computing",
+    "CSCW"
+  ],
+  [
+    "acm international conference on mobile systems, applications, and services",
+    "MobiSys"
+  ],
+  [
+    "ccf international conference natural language processing chinese computing",
+    "NLPCC"
+  ],
+  [
+    "international conference high performance embedded architectures compilers",
+    "HIPEAC"
+  ],
+  [
+    "international conference on model driven engineering languages and systems",
+    "MoDELS"
+  ],
+  [
+    "international conference on practice and theory of public-key cryptography",
+    "PKC"
+  ],
+  [
+    "international conference on security and privacy in communication networks",
+    "SecureComm"
+  ],
+  [
+    "international conference on software engineering and knowledge engineering",
+    "SEKE"
+  ],
+  [
+    "international conference on wireless algorithms, systems, and applications",
+    "WASA"
+  ],
+  [
+    "acm international conference emerging networking experiments technologies",
+    "CONEXT"
+  ],
+  [
+    "ieee international conference on acoustics, speech, and signal processing",
+    "ICASSP"
+  ],
+  [
+    "ieee international conference software analysis, evolution, reengineering",
+    "SANER"
+  ],
+  [
+    "ieee international symposium a world wireless, mobile multimedia networks",
+    "WOWMOM"
+  ],
+  [
+    "international conference algorithms architectures for parallel processing",
+    "ICA3PP"
+  ],
+  [
+    "international conference on computer supported cooperative work in design",
+    "CSCWD"
+  ],
+  [
+    "international conference on knowledge science, engineering and management",
+    "KSEM"
+  ],
+  [
+    "international symposium on empirical software engineering and measurement",
+    "ESEM"
+  ],
+  [
+    "the annual conference on empirical methods in natural language processing",
+    "EMNLP"
+  ],
+  [
+    "acm international joint conference on pervasive and ubiquitous computing",
+    "UbiComp/ISWC"
+  ],
+  [
+    "ieee international conference high performance computing, data analytics",
+    "HIPC"
+  ],
+  [
+    "acm international conference on the foundations of software engineering",
+    "FSE"
+  ],
+  [
+    "chinese conference pattern recognition computer vision (中国模式识别与计算机视觉大会)",
+    "PRCV"
+  ],
+  [
+    "conference object-oriented programming systems, languages, applications",
+    "OOPSLA"
+  ],
+  [
+    "ieee international conference high performance computing communications",
+    "HPCC"
+  ],
+  [
+    "ieee international conference on pervasive computing and communications",
+    "PerCom"
+  ],
+  [
+    "ieee international conference on sensing, communication, and networking",
+    "SECON"
+  ],
+  [
+    "ieee international conference software testing, verification validation",
+    "ICST"
+  ],
+  [
+    "ieee international working conference source code analysis manipulation",
+    "SCAM"
+  ],
+  [
+    "international conference integer programming combinatorial optimization",
+    "IPCO"
+  ],
+  [
+    "international conference on cryptographic hardware and embedded systems",
+    "CHES"
+  ],
+  [
+    "international symposium on performance analysis of systems and software",
+    "ISPASS"
+  ],
+  [
+    "acm annual international conference on mobile computing and networking",
+    "MobiCom"
+  ],
+  [
+    "acm conference on security and privacy in wireless and mobile networks",
+    "WiSec"
+  ],
+  [
+    "acm sigplan conference on programming language design & implementation",
+    "PLDI"
+  ],
+  [
+    "acm sigplan symposium on principles & practice of parallel programming",
+    "PPoPP"
+  ],
+  [
+    "ieee international conference on ubiquitous intelligence and computing",
+    "UIC"
+  ],
+  [
+    "ieee international symposium on high-performance computer architecture",
+    "HPCA"
+  ],
+  [
+    "international conference computer supported cooperative work in design",
+    "CSCWD"
+  ],
+  [
+    "international conference evaluation assessment in software engineering",
+    "EASE"
+  ],
+  [
+    "international conference on research incomputational molecular biology",
+    "RECOMB"
+  ],
+  [
+    "international conference parallel architectures compilation techniques",
+    "PACT"
+  ],
+  [
+    "international conference principles knowledge representation reasoning",
+    "KR"
+  ],
+  [
+    "international symposium automated technology for verification analysis",
+    "ATVA"
+  ],
+  [
+    "\"international conference on hybrid systems: computation and control\"",
+    "HSCC"
+  ],
+  [
+    "acm/ieee symposium architectures for networking communication systems",
+    "ANCS"
+  ],
+  [
+    "ieee international conference on computer communications and networks",
+    "ICCCN"
+  ],
+  [
+    "international conference hardware/software co-design system synthesis",
+    "CODES+ISSS"
+  ],
+  [
+    "international conference theory applications cryptographic techniques",
+    "EUROCRYPT"
+  ],
+  [
+    "international symposium on advanced parallel programming technologies",
+    "APPT"
+  ],
+  [
+    "the international conference on advanced data mining and applications",
+    "ADMA"
+  ],
+  [
+    "acm international conference on information and knowledge management",
+    "CIKM"
+  ],
+  [
+    "acm sigsoft international symposium on software testing and analysis",
+    "ISSTA"
+  ],
+  [
+    "acm symposium on high-performance parallel and distributed computing",
+    "HPDC"
+  ],
+  [
+    "international conference on advanced information systems engineering",
+    "CAiSE"
+  ],
+  [
+    "international conference on autonomous agents and multiagent systems",
+    "AAMAS"
+  ],
+  [
+    "international joint conference autonomous agents multi-agent systems",
+    "AAMAS"
+  ],
+  [
+    "international symposium logic-based program synthesis transformation",
+    "LOPSTR"
+  ],
+  [
+    "acm conference computer-supported cooperative work social computing",
+    "CSCW"
+  ],
+  [
+    "acm international conference mobile systems, applications, services",
+    "MOBISYS"
+  ],
+  [
+    "acm sigplan-sigact symposium on principles of programming languages",
+    "POPL"
+  ],
+  [
+    "acm/sigda international symposium on field-programmable gate arrays",
+    "FPGA"
+  ],
+  [
+    "ieee international symposium high performance computer architecture",
+    "HPCA"
+  ],
+  [
+    "ieee/rsj international conference on intelligent robots and systems",
+    "IROS"
+  ],
+  [
+    "international conference database systems for advanced applications",
+    "DASFAA"
+  ],
+  [
+    "international conference on engineering of complex computer systems",
+    "ICECCS"
+  ],
+  [
+    "international conference on information and communications security",
+    "ICICS"
+  ],
+  [
+    "international conference principles practice constraint programming",
+    "CP"
+  ],
+  [
+    "international conference scientific statistical database management",
+    "SSDBM"
+  ],
+  [
+    "international conference security privacy in communication networks",
+    "SECURECOMM"
+  ],
+  [
+    "international conference software engineering knowledge engineering",
+    "SEKE"
+  ],
+  [
+    "international conference theory applications satisfiability testing",
+    "SAT"
+  ],
+  [
+    "international conference wireless algorithms, systems, applications",
+    "WASA"
+  ],
+  [
+    "international symposium on bioinformatics research and applications",
+    "ISBRA"
+  ],
+  [
+    "conference detection intrusions malware & vulnerability assessment",
+    "DIMVA"
+  ],
+  [
+    "ieee international performance computing communications conference",
+    "IPCCC"
+  ],
+  [
+    "ieee international symposium performance analysis systems software",
+    "ISPASS"
+  ],
+  [
+    "ifip working group 11.9 international conference digital forensics",
+    "IFIPWG11.9"
+  ],
+  [
+    "international conference information processing in sensor networks",
+    "IPSN"
+  ],
+  [
+    "international conference intelligent systems for molecular biology",
+    "ISMB"
+  ],
+  [
+    "international conference knowledge science, engineering management",
+    "KSEM"
+  ],
+  [
+    "international conference mathematical foundations computer science",
+    "MFCS"
+  ],
+  [
+    "international conference on artificial intelligence and statistics",
+    "AISTATS"
+  ],
+  [
+    "international conference on automatic face and gesture recognition",
+    "FG"
+  ],
+  [
+    "international conference on massive storage systems and technology",
+    "MSST"
+  ],
+  [
+    "international symposium empirical software engineering measurement",
+    "ESEM"
+  ],
+  [
+    "acm international joint conference pervasive ubiquitous computing",
+    "UBICOMP"
+  ],
+  [
+    "acm sigplan conference programming language design implementation",
+    "PLDI"
+  ],
+  [
+    "ieee international conference acoustics, speech signal processing",
+    "ICASSP"
+  ],
+  [
+    "ieee international conference on parallel and distributed systems",
+    "ICPADS"
+  ],
+  [
+    "ieee real-time and embedded technology and applications symposium",
+    "RTAS"
+  ],
+  [
+    "international conference advanced information systems engineering",
+    "CAISE"
+  ],
+  [
+    "international symposium on recent advances in intrusion detection",
+    "RAID"
+  ],
+  [
+    "international workshop practice theory in public key cryptography",
+    "PKC"
+  ],
+  [
+    "acm sigplan symposium principles & practice parallel programming",
+    "PPOPP"
+  ],
+  [
+    "acm/sigda international symposium field-programmable gate arrays",
+    "FPGA"
+  ],
+  [
+    "conference of the international speech communication association",
+    "InterSpeech"
+  ],
+  [
+    "ieee international conference automatic face gesture recognition",
+    "FG"
+  ],
+  [
+    "ieee international conference pervasive computing communications",
+    "PERCOM"
+  ],
+  [
+    "ieee international conference sensing, communication, networking",
+    "SECON"
+  ],
+  [
+    "ieee international conference tools with artificial intelligence",
+    "ICTAI"
+  ],
+  [
+    "ieee international parallel and distributed processing symposium",
+    "IPDPS"
+  ],
+  [
+    "international conference computer-aided design computer graphics",
+    "CAD/GRAPHICS"
+  ],
+  [
+    "international conference cryptographic hardware embedded systems",
+    "CHES"
+  ],
+  [
+    "international conference on computer animation and social agents",
+    "CASA"
+  ],
+  [
+    "international conference on parallel problem solving from nature",
+    "PPSN"
+  ],
+  [
+    "north american chapter association for computational linguistics",
+    "NAACL"
+  ],
+  [
+    "acm international conference on interactive surfaces and spaces",
+    "ISS"
+  ],
+  [
+    "annual meeting of the association for computational linguistics",
+    "ACL"
+  ],
+  [
+    "ieee international conference on bioinformatics and biomedicine",
+    "BIBM"
+  ],
+  [
+    "ieee international conference ubiquitous intelligence computing",
+    "UIC"
+  ],
+  [
+    "ifip/ieee international symposium integrated network management",
+    "IM"
+  ],
+  [
+    "international conference on distributed artificial intelligence",
+    "DAI"
+  ],
+  [
+    "international conference on information security and cryptology",
+    "INSCRYPT"
+  ],
+  [
+    "international conference software quality, reliability security",
+    "QRS"
+  ],
+  [
+    "pacific rim international conference on artificial intelligence",
+    "PRICAI"
+  ],
+  [
+    "the international symposium on code generation and optimization",
+    "IEEE/ACM CGO"
+  ],
+  [
+    "usenix symposium on networked systems design and implementation",
+    "NSDI"
+  ],
+  [
+    "usenix symposium on operating systems design and implementation",
+    "OSDI"
+  ],
+  [
+    "acm international conference mobile human-computer interaction",
+    "MOBILEHCI"
+  ],
+  [
+    "conference on empirical methods in natural language processing",
+    "EMNLP"
+  ],
+  [
+    "detection of intrusions and malware & vulnerability assessment",
+    "DIMVA"
+  ],
+  [
+    "ieee international conference computer communications networks",
+    "ICCCN"
+  ],
+  [
+    "ieee international conference on software services engineering",
+    "SSE"
+  ],
+  [
+    "ieee international conference on systems, man, and cybernetics",
+    "SMC"
+  ],
+  [
+    "ieee international conference on web services (research track)",
+    "ICWS"
+  ],
+  [
+    "ieee international parallel & distributed processing symposium",
+    "IPDPS"
+  ],
+  [
+    "ieee symposium on field-programmable custom computing machines",
+    "FCCM"
+  ],
+  [
+    "ieee/acm international symposium cluster, cloud grid computing",
+    "CCGRID"
+  ],
+  [
+    "ieee/cvf conference on computer vision and pattern recognition",
+    "CVPR"
+  ],
+  [
+    "international acm sigaccess conference computers accessibility",
+    "ASSETS"
+  ],
+  [
+    "international conference applied cryptography network security",
+    "ACNS"
+  ],
+  [
+    "international conference field-programmable logic applications",
+    "FPL"
+  ],
+  [
+    "international conference measurement modeling computer systems",
+    "SIGMETRICS"
+  ],
+  [
+    "international conference on software maintenance and evolution",
+    "ICSME"
+  ],
+  [
+    "international symposium recent advances in intrusion detection",
+    "RAID"
+  ],
+  [
+    "pacific-asia conference on knowledge discovery and data mining",
+    "PAKDD"
+  ],
+  [
+    "acm international conference information knowledge management",
+    "CIKM"
+  ],
+  [
+    "acm sigmod-sigact-sigai symposium principles database systems",
+    "PODS"
+  ],
+  [
+    "acm sigplan-sigact symposium principles programming languages",
+    "POPL"
+  ],
+  [
+    "apweb-waim joint international conference on web and big data",
+    "APWeb-WAIM"
+  ],
+  [
+    "chinese conference on pattern recognition and computer vision",
+    "PRCV"
+  ],
+  [
+    "european joint conferences on theory and practice of software",
+    "ETAPS"
+  ],
+  [
+    "ieee international conference data science advanced analytics",
+    "DSAA"
+  ],
+  [
+    "ieee international symposium software reliability engineering",
+    "ISSRE"
+  ],
+  [
+    "ieee/cvf winter conference on applications of computer vision",
+    "WACV"
+  ],
+  [
+    "international conference engineering complex computer systems",
+    "ICECCS"
+  ],
+  [
+    "international conference on automated planning and scheduling",
+    "ICAPS"
+  ],
+  [
+    "international conference on document analysis and recognition",
+    "ICDAR"
+  ],
+  [
+    "international conference on geometric modeling and processing",
+    "GMP"
+  ],
+  [
+    "international conference on tools with artificial intellignce",
+    "ICTAI"
+  ],
+  [
+    "international conference on virtual reality and visualization",
+    "ICVRV"
+  ],
+  [
+    "international joint conference on natural language processing",
+    "IJCNLP"
+  ],
+  [
+    "acm sigplan workshop partial evaluation program manipulation",
+    "PEPM"
+  ],
+  [
+    "acm symposium on parallelism in algorithms and architectures",
+    "SPAA"
+  ],
+  [
+    "annual conference european association for computer graphics",
+    "EUROGRAPHICS"
+  ],
+  [
+    "foundations software technology theoretical computer science",
+    "FSTTCS"
+  ],
+  [
+    "ieee international symposium on reliable distributed systems",
+    "SRDS"
+  ],
+  [
+    "ieee/rsj international conference intelligent robots systems",
+    "IROS"
+  ],
+  [
+    "international conference database expert system applications",
+    "DEXA"
+  ],
+  [
+    "international conference hybrid systems: computation control",
+    "HSCC"
+  ],
+  [
+    "international conference information communications security",
+    "ICICS"
+  ],
+  [
+    "international conference on innovative data systems research",
+    "CIDR"
+  ],
+  [
+    "international conference on mobility, sensing and networking",
+    "MSN"
+  ],
+  [
+    "international symposium bioinformatics research applications",
+    "ISBRA"
+  ],
+  [
+    "pacific rim international conference artificial intelligence",
+    "PRICAI"
+  ],
+  [
+    "\"requirements engineering: foundation for software quality\"",
+    "REFSQ"
+  ],
+  [
+    "acm conference security privacy in wireless mobile networks",
+    "WISEC"
+  ],
+  [
+    "acm international conference interactive tabletops surfaces",
+    "ITS"
+  ],
+  [
+    "conference empirical methods in natural language processing",
+    "EMNLP"
+  ],
+  [
+    "ieee international conference distributed computing systems",
+    "ICDCS"
+  ],
+  [
+    "ieee symposium field-programmable custom computing machines",
+    "FCCM"
+  ],
+  [
+    "international computer software and applications conference",
+    "COMPSAC"
+  ],
+  [
+    "international conference artificial intelligence statistics",
+    "AISTATS"
+  ],
+  [
+    "international conference on dependable systems and networks",
+    "DSN"
+  ],
+  [
+    "international conference on digital forensics & cyber crime",
+    "ICDF2C"
+  ],
+  [
+    "international working conference advanced visual interfaces",
+    "AVI"
+  ],
+  [
+    "acm sigmm international conference on multimedia retrieval",
+    "ICMR"
+  ],
+  [
+    "acm workshop on information hiding and multimedia security",
+    "IH&MMSec"
+  ],
+  [
+    "australasia conference on information security and privacy",
+    "ACISP"
+  ],
+  [
+    "european conference on computer supported cooperative work",
+    "ECSCW"
+  ],
+  [
+    "ieee conference on secure and trustworthy machine learning",
+    "SATML"
+  ],
+  [
+    "ieee/acm international conference on computer-aided design",
+    "ICCAD"
+  ],
+  [
+    "ifip wg 11.9 international conference on digital forensics",
+    "IFIP WG 11.9"
+  ],
+  [
+    "international conference advanced data mining applications",
+    "ADMA"
+  ],
+  [
+    "international conference on automated software engineering",
+    "ASE"
+  ],
+  [
+    "international conference rewriting techniques applications",
+    "RTA"
+  ],
+  [
+    "the international conference on computational visual media",
+    "CVM"
+  ],
+  [
+    "acm siggraph/eurographics symposium on computer animation",
+    "SCA"
+  ],
+  [
+    "acm sigplan international conference function programming",
+    "ICFP"
+  ],
+  [
+    "american medical informatics association annual symposium",
+    "AMIA"
+  ],
+  [
+    "conference international speech communication association",
+    "INTERSPEECH"
+  ],
+  [
+    "european conference on parallel and distributed computing",
+    "Euro-Par"
+  ],
+  [
+    "ieee international conference mobile adhoc sensor systems",
+    "MASS"
+  ],
+  [
+    "ieee international symposium on workload characterization",
+    "IISWC"
+  ],
+  [
+    "ieee international symposium reliable distributed systems",
+    "SRDS"
+  ],
+  [
+    "ieee real-time embedded technology applications symposium",
+    "RTAS"
+  ],
+  [
+    "international conference computer animation social agents",
+    "CASA"
+  ],
+  [
+    "international conference on extending database technology",
+    "EDBT"
+  ],
+  [
+    "international conference on field programmable technology",
+    "FPT"
+  ],
+  [
+    "international conference on neural information processing",
+    "ICONIP"
+  ],
+  [
+    "international joint conference on artificial intelligence",
+    "IJCAI"
+  ],
+  [
+    "requirements engineering: foundation for software quality",
+    "REFSQ"
+  ],
+  [
+    "the international aaai conference on web and social media",
+    "ICWSM"
+  ],
+  [
+    "acm international conference intelligent user interfaces",
+    "IUI"
+  ],
+  [
+    "acm international conference mobile computing networking",
+    "MOBICOM"
+  ],
+  [
+    "acm special interest group on measurement and evaluation",
+    "SIGMETRICS"
+  ],
+  [
+    "annual meeting association for computational linguistics",
+    "ACL"
+  ],
+  [
+    "caai international conference on artificial intelligence",
+    "CICAI"
+  ],
+  [
+    "ieee international conference bioinformatics biomedicine",
+    "BIBM"
+  ],
+  [
+    "ieee international conference on computer communications",
+    "INFOCOM"
+  ],
+  [
+    "ieee international conference on robotics and automation",
+    "ICRA"
+  ],
+  [
+    "ifip international conference network parallel computing",
+    "NPC"
+  ],
+  [
+    "international colloquium automata, languages programming",
+    "ICALP"
+  ],
+  [
+    "international conference cooperative information systems",
+    "COOPIS"
+  ],
+  [
+    "international conference digital forensics & cyber crime",
+    "ICDF2C"
+  ],
+  [
+    "international conference information security cryptology",
+    "INSCRYPT"
+  ],
+  [
+    "international conference on business information systems",
+    "BIS"
+  ],
+  [
+    "international conference on mining software repositories",
+    "MSR"
+  ],
+  [
+    "network and distributed system security (ndss) symposium",
+    "NDSS"
+  ],
+  [
+    "usenix symposium operating systems design implementation",
+    "OSDI"
+  ],
+  [
+    "acm sigaccess conference on computers and accessibility",
+    "ASSETS"
+  ],
+  [
+    "acm sigmm international conference multimedia retrieval",
+    "ICMR"
+  ],
+  [
+    "acm symposium on access control models and technologies",
+    "SACMAT"
+  ],
+  [
+    "acm symposium on user interface software and technology",
+    "UIST"
+  ],
+  [
+    "asia conference on computer and communications security",
+    "AsiaCCS"
+  ],
+  [
+    "european conference computer supported cooperative work",
+    "ECSCW"
+  ],
+  [
+    "ieee/cvf computer vision pattern recognition conference",
+    "CVPR"
+  ],
+  [
+    "international computer software applications conference",
+    "COMPSAC"
+  ],
+  [
+    "international conference automated software engineering",
+    "ASE"
+  ],
+  [
+    "international conference on algorithmic learning theory",
+    "ALT"
+  ],
+  [
+    "international conference on computer-aided verification",
+    "CAV"
+  ],
+  [
+    "international conference software maintenance evolution",
+    "ICSME"
+  ],
+  [
+    "international conference virtual execution environments",
+    "VEE"
+  ],
+  [
+    "international conference web age information management",
+    "WAIM"
+  ],
+  [
+    "pacific-asia conference knowledge discovery data mining",
+    "PAKDD"
+  ],
+  [
+    "transactions on cognitive communications and networking",
+    "TCCN"
+  ],
+  [
+    "acm conference on computer and communications security",
+    "CCS"
+  ],
+  [
+    "acm international conference on multimodal interaction",
+    "ICMI"
+  ],
+  [
+    "acm siggraph/eurographics symposium computer animation",
+    "SCA"
+  ],
+  [
+    "ieee international conference on program comprehension",
+    "ICPC"
+  ],
+  [
+    "ieee international requirements engineering conference",
+    "RE"
+  ],
+  [
+    "ieee/acm international symposium on quality of service",
+    "IWQoS"
+  ],
+  [
+    "international colloquium theoretical aspects computing",
+    "ICTAC"
+  ],
+  [
+    "international conference automated planning scheduling",
+    "ICAPS"
+  ],
+  [
+    "international conference document analysis recognition",
+    "ICDAR"
+  ],
+  [
+    "international conference extending database technology",
+    "EDBT"
+  ],
+  [
+    "international conference field-programmable technology",
+    "FPT"
+  ],
+  [
+    "international conference neural information processing",
+    "ICONIP"
+  ],
+  [
+    "international conference on artificial neural networks",
+    "ICANN"
+  ],
+  [
+    "international conference on formal engineering methods",
+    "ICFEM"
+  ],
+  [
+    "international conference on service oriented computing",
+    "ICSOC"
+  ],
+  [
+    "international conference on web search and data mining",
+    "WSDM"
+  ],
+  [
+    "international conference virtual reality visualization",
+    "ICVRV"
+  ],
+  [
+    "international joint conference artificial intelligence",
+    "IJCAI"
+  ],
+  [
+    "international symposium on mixed and augmented reality",
+    "ISMAR"
+  ],
+  [
+    "internationnal conference on computational linguistics",
+    "COLING"
+  ],
+  [
+    "the ieee international conference on multimedia & expo",
+    "ICME"
+  ],
+  [
+    "acm international conference on supporting group work",
+    "GROUP"
+  ],
+  [
+    "acm sigkdd conference knowledge discovery data mining",
+    "SIGKDD"
+  ],
+  [
+    "acm symposium parallelism in algorithms architectures",
+    "SPAA"
+  ],
+  [
+    "conference on computational natural language learning",
+    "CoNLL"
+  ],
+  [
+    "ieee international conference computer communications",
+    "INFOCOM"
+  ],
+  [
+    "ieee/acm international symposium on microarchitecture",
+    "MICRO"
+  ],
+  [
+    "ieee/ifip network operations and management symposium",
+    "NOMS"
+  ],
+  [
+    "international conference mobility, sensing networking",
+    "MSN"
+  ],
+  [
+    "international conference parallel distributed systems",
+    "ICPADS"
+  ],
+  [
+    "international joint conference on automated reasoning",
+    "IJCAR"
+  ],
+  [
+    "international joint conference on rules and reasoning",
+    "RuleML+RR"
+  ],
+  [
+    "the ieee international conference on image processing",
+    "ICIP"
+  ],
+  [
+    "acm asia conference computer communications security",
+    "ASIACCS"
+  ],
+  [
+    "acm siggraph symposium interactive 3d graphics games",
+    "I3D"
+  ],
+  [
+    "acm symposium on principles of distributed computing",
+    "PODC"
+  ],
+  [
+    "asia-pacific network operations management symposium",
+    "APNOMS"
+  ],
+  [
+    "conference on uncertainty in artificial intelligence",
+    "UAI"
+  ],
+  [
+    "ieee international conference peer-to-peer computing",
+    "P2P"
+  ],
+  [
+    "ieee international symposium mixed augmented reality",
+    "ISMAR"
+  ],
+  [
+    "ieee international symposium on circuits and systems",
+    "ISCAS"
+  ],
+  [
+    "international conference algorithmic learning theory",
+    "ALT"
+  ],
+  [
+    "international conference computer aided verification",
+    "CAV"
+  ],
+  [
+    "international conference dependable systems networks",
+    "DSN"
+  ],
+  [
+    "international conference inductive logic programming",
+    "ILP"
+  ],
+  [
+    "international conference on learning representations",
+    "ICLR"
+  ],
+  [
+    "international symposium code generation optimization",
+    "CGO"
+  ],
+  [
+    "international symposium low power electronics design",
+    "ISLPED"
+  ],
+  [
+    "the acm international systems and storage conference",
+    "SYSTOR"
+  ],
+  [
+    "transactions on neural networks and learning systems",
+    "TNNLS"
+  ],
+  [
+    "acm conference on embedded networked sensor systems",
+    "SenSys"
+  ],
+  [
+    "acm international conference multimodal interaction",
+    "ICMI"
+  ],
+  [
+    "acm international conference on computing frontiers",
+    "CF"
+  ],
+  [
+    "acm international conference web search data mining",
+    "WSDM"
+  ],
+  [
+    "acm sigchi conference designing interactive systems",
+    "DIS"
+  ],
+  [
+    "acm workshop information hiding multimedia security",
+    "IH&MMSEC"
+  ],
+  [
+    "asia and south pacific design automation conference",
+    "ASP-DAC"
+  ],
+  [
+    "australasia conference information security privacy",
+    "ACISP"
+  ],
+  [
+    "conference on neural information processing systems",
+    "NeurIPS"
+  ],
+  [
+    "european joint conferences theory practice software",
+    "ETAPS"
+  ],
+  [
+    "european symposium on research in computer security",
+    "ESORICS"
+  ],
+  [
+    "ieee international conference program comprehension",
+    "ICPC"
+  ],
+  [
+    "international conference artificial neural networks",
+    "ICANN"
+  ],
+  [
+    "international conference formal engineering methods",
+    "ICFEM"
+  ],
+  [
+    "international conference service oriented computing",
+    "ICSOC"
+  ],
+  [
+    "international conference spatial information theory",
+    "COSIT"
+  ],
+  [
+    "large installation system administration conference",
+    "LISA"
+  ],
+  [
+    "theoretical aspects software engineering conference",
+    "TASE"
+  ],
+  [
+    "transactions on visualization and computer graphics",
+    "TVCG"
+  ],
+  [
+    "\"hot chips: a symposium on high performance chips\"",
+    "Hot Chips"
+  ],
+  [
+    "acm international conference on multimedia systems",
+    "MMSys"
+  ],
+  [
+    "acm international conference supporting group work",
+    "GROUP"
+  ],
+  [
+    "conference computational natural language learning",
+    "CONLL"
+  ],
+  [
+    "european conference on object-oriented programming",
+    "ECOOP"
+  ],
+  [
+    "european conference parallel distributed computing",
+    "EURO-PAR"
+  ],
+  [
+    "ieee annual symposium foundations computer science",
+    "FOCS"
+  ],
+  [
+    "ieee international conference on cluster computing",
+    "CLUSTER"
+  ],
+  [
+    "ieee international conference on network protocols",
+    "ICNP"
+  ],
+  [
+    "ieee international symposium on information theory",
+    "ISIT"
+  ],
+  [
+    "ieee wireless communications networking conference",
+    "WCNC"
+  ],
+  [
+    "ieee/acm international symposium microarchitecture",
+    "MICRO"
+  ],
+  [
+    "ifip international information security conference",
+    "SEC"
+  ],
+  [
+    "international conference computational linguistics",
+    "COLING"
+  ],
+  [
+    "international symposium spatial temporal databases",
+    "SSTD"
+  ],
+  [
+    "transactions on information forensics and security",
+    "TIFS"
+  ],
+  [
+    "transactions on intelligent systems and technology",
+    "TIST"
+  ],
+  [
+    "usenix conference on file and storage technologies",
+    "FAST"
+  ],
+  [
+    "usenix workshop on hot topics in operating systems",
+    "HotOS"
+  ],
+  [
+    "working ieee/ifip conference software architecture",
+    "WICSA"
+  ],
+  [
+    "acm conference human factors in computing systems",
+    "CHI"
+  ],
+  [
+    "acm symposium virtual reality software technology",
+    "VRST"
+  ],
+  [
+    "acm/ieee international symposium networks-on-chip",
+    "NOCS"
+  ],
+  [
+    "advances in neural information processing systems",
+    "NeurIPS"
+  ],
+  [
+    "conference uncertainty in artificial intelligence",
+    "UAI"
+  ],
+  [
+    "ieee international conference on data engineering",
+    "ICDE"
+  ],
+  [
+    "ieee international conference robotics automation",
+    "ICRA"
+  ],
+  [
+    "international conference on intelligent computing",
+    "ICIC"
+  ],
+  [
+    "international conference on very large data bases",
+    "VLDB"
+  ],
+  [
+    "international joint conference on neural networks",
+    "IJCNN"
+  ],
+  [
+    "international symposium on computational geometry",
+    "SOCG"
+  ],
+  [
+    "international symposium software testing analysis",
+    "ISSTA"
+  ],
+  [
+    "pacific conference computer graphics applications",
+    "PG"
+  ],
+  [
+    "the international conference on networked systems",
+    "NETYS"
+  ],
+  [
+    "wireless communications and networking conference",
+    "WCNC"
+  ],
+  [
+    "'international conference on concurrency theory'",
+    "CONCUR"
+  ],
+  [
+    "acm conference embedded networked sensor systems",
+    "SENSYS"
+  ],
+  [
+    "acm international conference computing frontiers",
+    "CF"
+  ],
+  [
+    "acm symposium access control models technologies",
+    "SACMAT"
+  ],
+  [
+    "acm symposium user interface software technology",
+    "UIST"
+  ],
+  [
+    "annual computer security applications conference",
+    "ACSAC"
+  ],
+  [
+    "conference neural information processing systems",
+    "NEURIPS"
+  ],
+  [
+    "european symposium research in computer security",
+    "ESORICS"
+  ],
+  [
+    "ieee international conference on cloud computing",
+    "Cloud"
+  ],
+  [
+    "ieee international conference on computer vision",
+    "ICCV"
+  ],
+  [
+    "ieee international conference services computing",
+    "SCC"
+  ],
+  [
+    "international computing combinatorics conference",
+    "COCOON"
+  ],
+  [
+    "international conference on case-based reasoning",
+    "ICCBR"
+  ],
+  [
+    "international conference on function programming",
+    "ICFP"
+  ],
+  [
+    "international conference on runtime verification",
+    "RV"
+  ],
+  [
+    "international conference on software engineering",
+    "ICSE"
+  ],
+  [
+    "international conference software system process",
+    "ICSSP"
+  ],
+  [
+    "international symposium on computer architecture",
+    "ISCA"
+  ],
+  [
+    "transactions on parallel and distributed systems",
+    "TPDS"
+  ],
+  [
+    "acm conference computer communications security",
+    "CCS"
+  ],
+  [
+    "acm conference on designing interactive systems",
+    "DIS"
+  ],
+  [
+    "acm symposium on principles of database systems",
+    "PODS"
+  ],
+  [
+    "annual conference computational learning theory",
+    "COLT"
+  ],
+  [
+    "annual meeting of the cognitive science society",
+    "CogSci"
+  ],
+  [
+    "asia south pacific design automation conference",
+    "ASP-DAC"
+  ],
+  [
+    "digital forensic research workshop asia pacific",
+    "DFRWS APAC"
+  ],
+  [
+    "european conference object-oriented programming",
+    "ECOOP"
+  ],
+  [
+    "genetic and evolutionary computation conference",
+    "GECCO"
+  ],
+  [
+    "ieee european symposium on security and privacy",
+    "EuroS&P"
+  ],
+  [
+    "ieee international conference cluster computing",
+    "CLUSTER"
+  ],
+  [
+    "ieee international conference network protocols",
+    "ICNP"
+  ],
+  [
+    "ieee international conference on communications",
+    "ICC"
+  ],
+  [
+    "ieee/acm international workshop quality service",
+    "IWQOS"
+  ],
+  [
+    "international conference mobile data management",
+    "MDM"
+  ],
+  [
+    "international conference on cryptology in india",
+    "INDOCRYPT"
+  ],
+  [
+    "international conference on multimedia modeling",
+    "MMM"
+  ],
+  [
+    "international conference on parallel processing",
+    "ICPP"
+  ],
+  [
+    "international conference on pattern recognition",
+    "ICPR"
+  ],
+  [
+    "international symposium algorithmic game theory",
+    "SAGT"
+  ],
+  [
+    "international symposium model checking software",
+    "SPIN"
+  ],
+  [
+    "journal on selected topics in signal processing",
+    "JSTSP"
+  ],
+  [
+    "transactions on dependable and secure computing",
+    "TDSC"
+  ],
+  [
+    "usenix workshop hot topics in operating systems",
+    "HOTOS"
+  ],
+  [
+    "acm international conference on supercomputing",
+    "ICS"
+  ],
+  [
+    "acm special interest group spatial information",
+    "SIGSPATIAL"
+  ],
+  [
+    "acm symposium principles distributed computing",
+    "PODC"
+  ],
+  [
+    "european conference on artificial intelligence",
+    "ECAI"
+  ],
+  [
+    "ieee international conference data engineering",
+    "ICDE"
+  ],
+  [
+    "ieee international conference image processing",
+    "ICIP"
+  ],
+  [
+    "ieee symposium on computers and communications",
+    "ISCC"
+  ],
+  [
+    "international aaai conference web social media",
+    "ICWSM"
+  ],
+  [
+    "international conference computer-aided design",
+    "ICCAD"
+  ],
+  [
+    "international conference intelligent computing",
+    "ICIC"
+  ],
+  [
+    "international conference very large data bases",
+    "VLDB"
+  ],
+  [
+    "international joint conference neural networks",
+    "IJCNN"
+  ],
+  [
+    "international symposium algorithms computation",
+    "ISAAC"
+  ],
+  [
+    "international symposium computational geometry",
+    "SOCG"
+  ],
+  [
+    "symposium network system design implementation",
+    "NSDI"
+  ],
+  [
+    "symposium theoretical aspects computer science",
+    "STACS"
+  ],
+  [
+    "transactions on knowledge and data engineering",
+    "TKDE"
+  ],
+  [
+    "acm conference on intelligent user interfaces",
+    "IUI"
+  ],
+  [
+    "acm symposium on operating systems principles",
+    "SOSP"
+  ],
+  [
+    "asian symposium programming languages systems",
+    "APLAS"
+  ],
+  [
+    "eurographics symposium on geometry processing",
+    "SGP"
+  ],
+  [
+    "hot chips: a symposium high performance chips",
+    "HOTCHIPS"
+  ],
+  [
+    "ieee international conference cloud computing",
+    "IEEECLOUD"
+  ],
+  [
+    "ieee international conference multimedia expo",
+    "ICME"
+  ],
+  [
+    "ieee international symposium circuits systems",
+    "ISCAS"
+  ],
+  [
+    "ieee symposium high-performance interconnects",
+    "HOTI"
+  ],
+  [
+    "international conference case-based reasoning",
+    "ICCBR"
+  ],
+  [
+    "international conference on embedded software",
+    "EMSOFT"
+  ],
+  [
+    "international conference runtime verification",
+    "RV"
+  ],
+  [
+    "international conference software engineering",
+    "ICSE"
+  ],
+  [
+    "international symposium computer architecture",
+    "ISCA"
+  ],
+  [
+    "network distributed system security symposium",
+    "NDSS"
+  ],
+  [
+    "transactions on knowledge discovery from data",
+    "TKDD"
+  ],
+  [
+    "acm international systems storage conference",
+    "SYSTOR"
+  ],
+  [
+    "acm special interest group computer graphics",
+    "SIGGRAPH"
+  ],
+  [
+    "acm/ieee symposium logic in computer science",
+    "LICS"
+  ],
+  [
+    "asia-pacific software engineering conference",
+    "APSEC"
+  ],
+  [
+    "european conference on information retrieval",
+    "ECIR"
+  ],
+  [
+    "ieee international conference communications",
+    "ICC"
+  ],
+  [
+    "ieee international conference on data mining",
+    "ICDM"
+  ],
+  [
+    "international conference conceptual modeling",
+    "ER"
+  ],
+  [
+    "international conference multimedia modeling",
+    "MMM"
+  ],
+  [
+    "international conference on machine learning",
+    "ICML"
+  ],
+  [
+    "international conference parallel processing",
+    "ICPP"
+  ],
+  [
+    "international conference pattern recognition",
+    "ICPR"
+  ],
+  [
+    "international joint conference on biometrics",
+    "IJCB"
+  ],
+  [
+    "journal of network and computer applications",
+    "JNCA"
+  ],
+  [
+    "siam international conference on data mining",
+    "SDM"
+  ],
+  [
+    "transactions on emerging topics in computing",
+    "TETC"
+  ],
+  [
+    "acm sigops asia-pacific workshop on systems",
+    "APSys"
+  ],
+  [
+    "conference innovative data systems research",
+    "CIDR"
+  ],
+  [
+    "european conference artificial intelligence",
+    "ECAI"
+  ],
+  [
+    "genetic evolutionary computation conference",
+    "GECCO"
+  ],
+  [
+    "ieee computer security foundations workshop",
+    "CSFW"
+  ],
+  [
+    "ieee symposium on logic in computer science",
+    "LICS"
+  ],
+  [
+    "ifip international conference on networking",
+    "Networking"
+  ],
+  [
+    "international conference concurrency theory",
+    "CONCUR"
+  ],
+  [
+    "international conference on computer design",
+    "ICCD"
+  ],
+  [
+    "international conference on database theory",
+    "ICDT"
+  ],
+  [
+    "symposium on probabilistic machine learning",
+    "ProbML"
+  ],
+  [
+    "theoretical aspects of software engineering",
+    "TASE"
+  ],
+  [
+    "usenix conference file storage technologies",
+    "FAST"
+  ],
+  [
+    "aaai conference on artificial intelligence",
+    "AAAI"
+  ],
+  [
+    "acm international conference on multimedia",
+    "ACM MM"
+  ],
+  [
+    "acm symposium operating systems principles",
+    "SOSP"
+  ],
+  [
+    "conference on machine learning and systems",
+    "MLSys"
+  ],
+  [
+    "database systems for advanced applications",
+    "DASFAA"
+  ],
+  [
+    "eurographics symposium geometry processing",
+    "SGP"
+  ],
+  [
+    "ieee conference on local computer networks",
+    "LCN"
+  ],
+  [
+    "ieee international conference web services",
+    "ICWS"
+  ],
+  [
+    "ieee international semantic web conference",
+    "ISWC"
+  ],
+  [
+    "ieee international test conference in asia",
+    "ITC-Asia"
+  ],
+  [
+    "international conference embedded software",
+    "EMSOFT"
+  ],
+  [
+    "international wireless internet conference",
+    "WiCON"
+  ],
+  [
+    "journal of computer science and technology",
+    "JCST"
+  ],
+  [
+    "'formal methods in computer-aided design'",
+    "FMCAD"
+  ],
+  [
+    "acm-siam symposium on discrete algorithms",
+    "SODA"
+  ],
+  [
+    "applied cryptography and network security",
+    "ACNS"
+  ],
+  [
+    "european conference information retrieval",
+    "ECIR"
+  ],
+  [
+    "ieee congress on evolutionary computation",
+    "CEC"
+  ],
+  [
+    "ieee international conference data mining",
+    "ICDM"
+  ],
+  [
+    "ieee international conference on big data",
+    "BigData"
+  ],
+  [
+    "ifip international conferences networking",
+    "NETWORKING"
+  ],
+  [
+    "international conference machine learning",
+    "ICML"
+  ],
+  [
+    "international joint conference biometrics",
+    "IJCB"
+  ],
+  [
+    "international symposium on formal methods",
+    "FM"
+  ],
+  [
+    "passive and active measurement conference",
+    "PAM"
+  ],
+  [
+    "pattern analysis and machine intelligence",
+    "TPAMI"
+  ],
+  [
+    "siam international conference data mining",
+    "SDM"
+  ],
+  [
+    "acm symposium on the theory of computing",
+    "STOC"
+  ],
+  [
+    "annual meeting cognitive science society",
+    "COGSCI"
+  ],
+  [
+    "conference on web and internet economics",
+    "WINE"
+  ],
+  [
+    "eurographics conference on visualization",
+    "EuroVis"
+  ],
+  [
+    "financial cryptography and data security",
+    "FC"
+  ],
+  [
+    "ieee european symposium security privacy",
+    "EUROS&P"
+  ],
+  [
+    "international conference computer design",
+    "ICCD"
+  ],
+  [
+    "international conference computer vision",
+    "ICCV"
+  ],
+  [
+    "international conference database theory",
+    "ICDT"
+  ],
+  [
+    "international conference web engineering",
+    "ICWE"
+  ],
+  [
+    "international journal of computer vision",
+    "IJCV"
+  ],
+  [
+    "international world wide web conferences",
+    "WWW"
+  ],
+  [
+    "privacy enhancing technologies symposium",
+    "PETS"
+  ],
+  [
+    "symposium on solid and physical modeling",
+    "SPM"
+  ],
+  [
+    "symposium on usable privacy and security",
+    "SOUPS"
+  ],
+  [
+    "the conference on parsimony and learning",
+    "CPAL"
+  ],
+  [
+    "web information systems and applications",
+    "WISA"
+  ],
+  [
+    "aaai conference artificial intelligence",
+    "AAAI"
+  ],
+  [
+    "acm international conference multimedia",
+    "ACMMM"
+  ],
+  [
+    "acm knowledge discovery and data mining",
+    "SIGKDD"
+  ],
+  [
+    "computer vision and image understanding",
+    "CVIU"
+  ],
+  [
+    "cryptographer's track at rsa conference",
+    "CT-RSA"
+  ],
+  [
+    "european conference on computer systems",
+    "EuroSys"
+  ],
+  [
+    "formal methods in computer-aided design",
+    "FMCAD"
+  ],
+  [
+    "ieee conference local computer networks",
+    "LCN"
+  ],
+  [
+    "ieee symposium computers communications",
+    "ISCC"
+  ],
+  [
+    "international conference software reuse",
+    "ICSR"
+  ],
+  [
+    "international conference supercomputing",
+    "ICS"
+  ],
+  [
+    "international static analysis symposium",
+    "SAS"
+  ],
+  [
+    "international symposium physical design",
+    "ISPD"
+  ],
+  [
+    "international world wide web conference",
+    "WWW"
+  ],
+  [
+    "transactions on wireless communications",
+    "TWC"
+  ],
+  [
+    "acm workshop digital rights management",
+    "DRM"
+  ],
+  [
+    "acm-siam symposium discrete algorithms",
+    "SODA"
+  ],
+  [
+    "asia pacific bioinformatics conference",
+    "APBC"
+  ],
+  [
+    "asia-pacific symposium on internetware",
+    "Internetware"
+  ],
+  [
+    "european conference on computer vision",
+    "ECCV"
+  ],
+  [
+    "ieee international conference big data",
+    "IEEEBIGDATA"
+  ],
+  [
+    "ieee symposium on security and privacy",
+    "S&P"
+  ],
+  [
+    "international symposium formal methods",
+    "FM"
+  ],
+  [
+    "transactions on industrial informatics",
+    "TII"
+  ],
+  [
+    "acm conference on recommender systems",
+    "RecSys"
+  ],
+  [
+    "eurographics conference visualization",
+    "EUROVIS"
+  ],
+  [
+    "european signal processing conference",
+    "EUSIPCO"
+  ],
+  [
+    "ieee global communications conference",
+    "GLOBECOM"
+  ],
+  [
+    "ieee international conference systems",
+    "SMC"
+  ],
+  [
+    "international conference on 3d vision",
+    "3DV"
+  ],
+  [
+    "international semantic web conference",
+    "ISWC"
+  ],
+  [
+    "international test conference in asia",
+    "ITC-ASIA"
+  ],
+  [
+    "neural information processing systems",
+    "NeurIPS"
+  ],
+  [
+    "passive active measurement conference",
+    "PAM"
+  ],
+  [
+    "the conference on automated deduction",
+    "CADE"
+  ],
+  [
+    "acm conference on management of data",
+    "SIGMOD"
+  ],
+  [
+    "annual conference on learning theory",
+    "COLT"
+  ],
+  [
+    "asian conference on machine learning",
+    "ACML"
+  ],
+  [
+    "communications surveys and tutorials",
+    "COMST"
+  ],
+  [
+    "european conference computer systems",
+    "EUROSYS"
+  ],
+  [
+    "financial cryptography data security",
+    "FC"
+  ],
+  [
+    "ieee pacific visualization symposium",
+    "PacificVis"
+  ],
+  [
+    "international workshop web databases",
+    "WEBDB"
+  ],
+  [
+    "journal of machine learning research",
+    "JMLR"
+  ],
+  [
+    "parallel problem solving from nature",
+    "PPSN"
+  ],
+  [
+    "the ieee real-time systems symposium",
+    "RTSS"
+  ],
+  [
+    "transactions on privacy and security",
+    "TOPS"
+  ],
+  [
+    "transactions on software engineering",
+    "TSE"
+  ],
+  [
+    "transactions on vehicular technology",
+    "TVT"
+  ],
+  [
+    "acm internet measurement conference",
+    "IMC"
+  ],
+  [
+    "acm workshop hot topics in networks",
+    "HOTNETS"
+  ],
+  [
+    "acm workshop hot topics in security",
+    "HOTSEC"
+  ],
+  [
+    "asia-pacific symposium internetware",
+    "INTERNETWARE"
+  ],
+  [
+    "asia-pacific workshop on networking",
+    "APNet"
+  ],
+  [
+    "asian conference on computer vision",
+    "ACCV"
+  ],
+  [
+    "conference computational complexity",
+    "CCC"
+  ],
+  [
+    "data mining and knowledge discovery",
+    "DMKD"
+  ],
+  [
+    "design, automation & test in europe",
+    "DATE"
+  ],
+  [
+    "eurographics symposium on rendering",
+    "EGSR"
+  ],
+  [
+    "european conference computer vision",
+    "ECCV"
+  ],
+  [
+    "information and software technology",
+    "IST"
+  ],
+  [
+    "international cryptology conference",
+    "CRYPTO"
+  ],
+  [
+    "international middleware conference",
+    "Middleware"
+  ],
+  [
+    "transactions on information systems",
+    "TOIS"
+  ],
+  [
+    "web information systems engineering",
+    "WISE"
+  ],
+  [
+    "acm conference recommender systems",
+    "RECSYS"
+  ],
+  [
+    "digital forensic research workshop",
+    "DFRWS"
+  ],
+  [
+    "future generation computer systems",
+    "FGCS"
+  ],
+  [
+    "international conference 3d vision",
+    "3DV"
+  ],
+  [
+    "science china information sciences",
+    "SCIS"
+  ],
+  [
+    "transactions on information theory",
+    "TIT"
+  ],
+  [
+    "transactions on services computing",
+    "TSC"
+  ],
+  [
+    "usenix annual technical conference",
+    "USENIX ATC"
+  ],
+  [
+    "asian conference machine learning",
+    "ACML"
+  ],
+  [
+    "british machine vision conference",
+    "BMVC"
+  ],
+  [
+    "conference web internet economics",
+    "WINE"
+  ],
+  [
+    "knowledge and information systems",
+    "KAIS"
+  ],
+  [
+    "mass storage systems technologies",
+    "MSST"
+  ],
+  [
+    "proceedings of the vldb endowment",
+    "PVLDB"
+  ],
+  [
+    "symposium solid physical modeling",
+    "SPM"
+  ],
+  [
+    "symposium usable privacy security",
+    "SOUPS"
+  ],
+  [
+    "theory of cryptography conference",
+    "TCC"
+  ],
+  [
+    "transactions on automatic control",
+    "TAC"
+  ],
+  [
+    "transactions on signal processing",
+    "TSP"
+  ],
+  [
+    "acm symposium on cloud computing",
+    "SoCC"
+  ],
+  [
+    "asia-pacific workshop networking",
+    "APNET"
+  ],
+  [
+    "asian conference computer vision",
+    "ACCV"
+  ],
+  [
+    "eurographics symposium rendering",
+    "EGSR"
+  ],
+  [
+    "expert systems with applications",
+    "ESWA"
+  ],
+  [
+    "extended semantic web conference",
+    "ESWC"
+  ],
+  [
+    "ieee real-time systems symposium",
+    "RTSS"
+  ],
+  [
+    "selected areas in communications",
+    "JSAC"
+  ],
+  [
+    "the conference on robot learning",
+    "CoRL"
+  ],
+  [
+    "transactions on computer systems",
+    "TOCS"
+  ],
+  [
+    "transactions on database systems",
+    "TODS"
+  ],
+  [
+    "transactions on image processing",
+    "TIP"
+  ],
+  [
+    "transactions on mobile computing",
+    "TMC"
+  ],
+  [
+    "acm interaction design children",
+    "IDC"
+  ],
+  [
+    "computer graphics international",
+    "CGI"
+  ],
+  [
+    "conference on language modeling",
+    "COLM"
+  ],
+  [
+    "ieee symposium security privacy",
+    "S&P"
+  ],
+  [
+    "information security conference",
+    "ISC"
+  ],
+  [
+    "journal of systems and software",
+    "JSS"
+  ],
+  [
+    "new security paradigms workshop",
+    "NSPW"
+  ],
+  [
+    "transactions on cloud computing",
+    "TCC"
+  ],
+  [
+    "transactions on sensor networks",
+    "TOSN"
+  ],
+  [
+    "wireless communications letters",
+    "WCL"
+  ],
+  [
+    "acm siggraph annual conference",
+    "ACM SIGGRAPH"
+  ],
+  [
+    "acm symposium theory computing",
+    "STOC"
+  ],
+  [
+    "empirical software engineering",
+    "EMSE"
+  ],
+  [
+    "european cryptology conference",
+    "EUROCRYPT"
+  ],
+  [
+    "information processing letters",
+    "IPL"
+  ],
+  [
+    "pervasive and mobile computing",
+    "PMC"
+  ],
+  [
+    "selected areas in cryptography",
+    "SAC"
+  ],
+  [
+    "theory cryptography conference",
+    "TCC"
+  ],
+  [
+    "transactions on communications",
+    "TCOM"
+  ],
+  [
+    "virtual execution environments",
+    "VEE"
+  ],
+  [
+    "acm symposium cloud computing",
+    "SOCC"
+  ],
+  [
+    "european symposium algorithms",
+    "ESA"
+  ],
+  [
+    "frontiers of computer science",
+    "FCS"
+  ],
+  [
+    "geometric modeling processing",
+    "GMP"
+  ],
+  [
+    "great lakes symposium on vlsi",
+    "GLSVLSI"
+  ],
+  [
+    "ieee visualization conference",
+    "IEEE VIS"
+  ],
+  [
+    "ieee world haptics conference",
+    "IEEEWORLDHAPTICSCONFERENCE"
+  ],
+  [
+    "international test conference",
+    "ITC"
+  ],
+  [
+    "learning on graphs conference",
+    "LOG"
+  ],
+  [
+    "design automation conference",
+    "DAC"
+  ],
+  [
+    "ieee european test symposium",
+    "ETS"
+  ],
+  [
+    "mining software repositories",
+    "MSR"
+  ],
+  [
+    "robotics science and systems",
+    "RSS"
+  ],
+  [
+    "shape modeling international",
+    "SMI"
+  ],
+  [
+    "theoretical computer science",
+    "TCS"
+  ],
+  [
+    "asia pacific web conference",
+    "APWEB"
+  ],
+  [
+    "data compression conference",
+    "DCC"
+  ],
+  [
+    "nature machine intelligence",
+    "Nat. Mach. Intell."
+  ],
+  [
+    "pattern recognition letters",
+    "PRL"
+  ],
+  [
+    "transactions on cybernetics",
+    "TCYB"
+  ],
+  [
+    "computational visual media",
+    "CVM"
+  ],
+  [
+    "great lakes symposium vlsi",
+    "GLSVLSI"
+  ],
+  [
+    "internet of things journal",
+    "IoTJ"
+  ],
+  [
+    "transactions on algorithms",
+    "TALG"
+  ],
+  [
+    "transactions on networking",
+    "TON"
+  ],
+  [
+    "communications of the acm",
+    "CACM"
+  ],
+  [
+    "ieee asian test symposium",
+    "ATS"
+  ],
+  [
+    "transactions on computers",
+    "TC"
+  ],
+  [
+    "usenix security symposium",
+    "USENIX Security"
+  ],
+  [
+    "fast software encryption",
+    "FSE"
+  ],
+  [
+    "ieee vlsi test symposium",
+    "VTS"
+  ],
+  [
+    "transactions on big data",
+    "TBD"
+  ],
+  [
+    "transactions on graphics",
+    "TOG"
+  ],
+  [
+    "transactions on robotics",
+    "T-RO"
+  ],
+  [
+    "artificial intelligence",
+    "AIJ"
+  ],
+  [
+    "computer graphics forum",
+    "CGF"
+  ],
+  [
+    "knowledge-based systems",
+    "KBS"
+  ],
+  [
+    "communications letters",
+    "IEEE Commun. Lett."
+  ],
+  [
+    "computer science logic",
+    "CSL"
+  ],
+  [
+    "computers and security",
+    "COSE"
+  ],
+  [
+    "acm sigmod conference",
+    "SIGMOD"
+  ],
+  [
+    "nature communications",
+    "Nat. Commun."
+  ],
+  [
+    "computers & security",
+    "COSE"
+  ],
+  [
+    "ieee virtual reality",
+    "VR"
+  ],
+  [
+    "information sciences",
+    "Inf. Sci."
+  ],
+  [
+    "acm multimedia asia",
+    "MMAsia"
+  ],
+  [
+    "pattern recognition",
+    "PR"
+  ],
+  [
+    "graphics interface",
+    "GI"
+  ],
+  [
+    "journal of the acm",
+    "JACM"
+  ],
+  [
+    "computer networks",
+    "Comput. Netw."
+  ],
+  [
+    "wireless networks",
+    "WINET"
+  ],
+  [
+    "machine learning",
+    "Mach. Learn."
+  ],
+  [
+    "neural networks",
+    "Neural Netw."
+  ],
+  [
+    "neurocomputing",
+    "Neurocomputing"
+  ],
+  [
+    "eurographics",
+    "Eurographics"
+  ],
+  [
+    "vldb journal",
+    "VLDBJ"
+  ],
+  [
+    "ieee access",
+    "IEEE Access"
+  ],
+  [
+    "neurips",
+    "NeurIPS"
+  ],
+  [
+    "nips",
+    "NeurIPS"
+  ]
+]

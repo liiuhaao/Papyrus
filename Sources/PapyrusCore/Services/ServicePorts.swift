@@ -2,7 +2,7 @@ import Foundation
 
 protocol MetadataProviding: AnyObject {
     @MainActor
-    func enrichMetadata(paper: Paper) async -> Bool
+    func enrichMetadata(paper: Paper) async -> MetadataResolution
     func fetchPDFURL(arxivId: String?, doi: String?) async throws -> URL
     func fetchReferences(for paper: Paper) async throws -> [PaperReference]
     func fetchCitations(for paper: Paper) async throws -> [PaperReference]
