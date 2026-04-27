@@ -77,8 +77,9 @@ papyrus help                    # full command reference
 ## Acknowledgements
 
 Built with Swift and SwiftUI, with help from
-<a href="https://openai.com/codex/"><strong>Codex</strong></a> and
-<a href="https://www.anthropic.com/claude-code"><strong>Claude Code</strong></a>,
+<a href="https://openai.com/codex/"><strong>Codex</strong></a>,
+<a href="https://www.anthropic.com/claude-code"><strong>Claude Code</strong></a>, and
+<a href="https://www.moonshot.cn/kimi-code"><strong>Kimi Code</strong></a>,
 and inspired by
 <a href="https://www.zotero.org/"><strong>Zotero</strong></a> and
 <a href="https://paperlib.app/"><strong>Paperlib</strong></a>.
