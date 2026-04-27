@@ -19,11 +19,6 @@ struct MetadataResolver {
             return MetadataResolution(metadata: nil, candidates: ranked, trace: "best-score=\(acceptedScore)")
         }
 
-        if isLikelyPrepublication(seed),
-           !isLikelySameWork(seed: seed, candidate: best) {
-            return MetadataResolution(metadata: nil, candidates: ranked, trace: "rejected-prepublication-mismatch")
-        }
-
         let merged = merge(seed: seed, ranked: ranked)
         return MetadataResolution(metadata: merged, candidates: ranked, trace: "accepted=\(best.source) score=\(acceptedScore)")
     }
@@ -132,19 +127,6 @@ struct MetadataResolver {
         return coverage >= 0.78 || (coverage >= 0.62 && bigram >= 0.4 && anchoredCoverage >= 0.5)
     }
 
-    private func isLikelyPrepublication(_ seed: MetadataSeed) -> Bool {
-        let filename = (seed.originalFilename ?? "").lowercased()
-        let title = (seed.title ?? "").lowercased()
-        let text = filename + " " + title
-        if text.contains("iclr 2026") || text.contains("icml 2026") || text.contains("neurips 2026") {
-            return true
-        }
-        if text.contains("published as a conference paper at") {
-            return true
-        }
-        return seed.year >= 2026 && seed.doi == nil
-    }
-
     private func isLikelySameWork(seed: MetadataSeed, candidate: MetadataCandidate) -> Bool {
         let coverage = seed.searchTitles
             .map { MetadataNormalization.titleTokenCoverage($0, candidate.metadata.title) }
@@ -183,7 +165,7 @@ struct MetadataResolver {
         if let seedVenue = seed.venue,
            let seedType = MetadataParsers.inferPublicationType(venue: seedVenue, doi: nil, arxivId: nil),
            seedType == "conference" || seedType == "journal" {
-            let mergedType = MetadataParsers.inferPublicationType(venue: merged.venue, doi: nil, arxivId: nil)
+            let mergedType = MetadataParsers.inferPublicationType(venue: merged.venue, doi: merged.doi, arxivId: merged.arxivId)
             if mergedType == "preprint" || mergedType == nil || merged.venue == nil {
                 merged.venue = seedVenue
             }

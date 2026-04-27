@@ -123,7 +123,11 @@ enum MetadataParsers {
 
         if let primaryLocation = json["primary_location"] as? [String: Any],
            let source = primaryLocation["source"] as? [String: Any] {
-            metadata.venue = source["display_name"] as? String
+            let sourceType = source["type"] as? String
+            let isPublished = primaryLocation["is_published"] as? Bool ?? true
+            if sourceType != "repository" && isPublished {
+                metadata.venue = source["display_name"] as? String
+            }
         } else if let hostVenue = json["host_venue"] as? [String: Any] {
             metadata.venue = hostVenue["display_name"] as? String
         }

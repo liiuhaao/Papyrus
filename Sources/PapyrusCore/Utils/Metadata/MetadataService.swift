@@ -41,7 +41,7 @@ class MetadataService: MetadataProviding {
         self.pdfResolverClient = PDFResolverClient(session: self.session, openAlexClient: self.openAlexClient)
     }
 
-    private func makePipeline(for preset: MetadataPreset, seed: MetadataSeed) -> MetadataPipeline {
+    func makePipeline(for preset: MetadataPreset, seed: MetadataSeed) -> MetadataPipeline {
         var sources: [MetadataSource] = [
             ArxivMetadataSource(
                 fetchSemanticScholar: { try await self.fetchFromSemanticScholar(arxivId: $0) },
@@ -234,6 +234,15 @@ class MetadataService: MetadataProviding {
             if let arxivId = seed.arxivId?.trimmingCharacters(in: .whitespacesAndNewlines),
                !arxivId.isEmpty,
                let fallback = await fetchArxivFallback(arxivId: arxivId) {
+                let currentVenueIsFormal = paper.venue.map {
+                    MetadataParsers.inferPublicationType(venue: $0, doi: paper.doi, arxivId: nil) == "conference" ||
+                    MetadataParsers.inferPublicationType(venue: $0, doi: paper.doi, arxivId: nil) == "journal"
+                } ?? false
+                let fallbackIsPreprint = MetadataCompleteness.isPreprint(fallback)
+                if currentVenueIsFormal && fallbackIsPreprint {
+                    print("[Enrich] Skipping arXiv fallback: paper already has formal venue")
+                    return false
+                }
                 print("[Enrich] Fallback arXiv succeeded for \(arxivId)")
                 MetadataUpdatePolicy.apply(fallback, to: paper)
                 return true

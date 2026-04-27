@@ -54,6 +54,9 @@ sync_app_bundle_metadata() {
   ensure_file "$APP_INFO_SOURCE"
   /bin/cp "$APP_INFO_SOURCE" "$APP_INFO_PLIST"
 
+  # Rebuild icon assets from source PNG so the bundle never goes stale.
+  "$ROOT/tools/build_icons.sh" app >/dev/null
+
   # Keep the renamed bundle launchable even before icon assets are regenerated.
   if [[ ! -f "$APP_ICON" && -f "$LEGACY_APP_ICON" ]]; then
     /bin/cp "$LEGACY_APP_ICON" "$APP_ICON"
